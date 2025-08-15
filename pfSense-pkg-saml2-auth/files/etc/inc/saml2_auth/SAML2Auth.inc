@@ -232,7 +232,7 @@ class SAML2Auth {
         # Variables
         $releases_file = "/usr/local/share/pfSense-pkg-saml2-auth/releases.json";
         $releases = json_decode(file_get_contents($releases_file), true);
-        $fetch_releases_cmd = "curl -s https://api.github.com/repos/jaredhendrickson13/pfsense-saml2-auth/releases -m 10";
+        $fetch_releases_cmd = "curl -s https://api.github.com/repos/pfrest/pfSense-pkg-saml2-auth/releases -m 10";
 
         # Check if our previous releases data is older than 120 seconds
         if ($releases["last_updated"] + 120 < time()) {
@@ -312,7 +312,7 @@ class SAML2Auth {
     # Update to the latest version of the package
     public function update_pkg($version="latest", $console=false) {
         # Local variables
-        $base_url = "https://github.com/jaredhendrickson13/pfsense-saml2-auth/releases";
+        $base_url = "https://github.com/pfrest/pfSense-pkg-saml2-auth/releases";
 
         # Format the package URL based on the requested version
         if ($version === "latest") {

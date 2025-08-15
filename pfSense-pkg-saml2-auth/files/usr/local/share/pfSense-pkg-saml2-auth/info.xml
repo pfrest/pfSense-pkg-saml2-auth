@@ -4,7 +4,7 @@
         <name>SAML2 Authentication</name>
         <internal_name>saml2-auth</internal_name>
         <descr><![CDATA[A SAML2 authentication extension for the pfSense UI]]></descr>
-        <website>https://github.com/jaredhendrickson13/pfsense-saml2-auth</website>
+        <website>https://github.com/pfrest/pfSense-pkg-saml2-auth</website>
         <category>System</category>
         <version>%%PKGVERSION%%</version>
         <configurationfile>saml2_auth.xml</configurationfile>

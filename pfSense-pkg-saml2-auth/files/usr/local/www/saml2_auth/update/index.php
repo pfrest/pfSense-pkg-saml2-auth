@@ -53,7 +53,7 @@ $update_status_section->addInput(new Form_StaticText(
 $update_status_section->addInput(new Form_StaticText('Current Version', $curr_ver.$curr_ver_msg));
 $update_status_section->addInput(new Form_StaticText(
     'Latest Version',
-    $latest_ver." - <a href='https://github.com/jaredhendrickson13/pfsense-saml2-auth/releases/tag/v".$latest_ver."'>View Release</a>"." - Released on ".$latest_ver_date
+    $latest_ver." - <a href='https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/tag/v".$latest_ver."'>View Release</a>"." - Released on ".$latest_ver_date
 ));
 
 # Populate our update settings form
