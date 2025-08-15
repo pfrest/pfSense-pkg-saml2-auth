@@ -1,8 +1,8 @@
 # pfSense SAML2 Authentication
 
-[![Quality](https://github.com/jaredhendrickson13/pfsense-saml2-auth/actions/workflows/quality.yml/badge.svg)](https://github.com/jaredhendrickson13/pfsense-saml2-auth/actions/workflows/quality.yml)
-[![Build](https://github.com/jaredhendrickson13/pfsense-saml2-auth/actions/workflows/build.yml/badge.svg)](https://github.com/jaredhendrickson13/pfsense-saml2-auth/actions/workflows/build.yml)
-[![Release](https://github.com/jaredhendrickson13/pfsense-saml2-auth/actions/workflows/release.yml/badge.svg)](https://github.com/jaredhendrickson13/pfsense-saml2-auth/actions/workflows/release.yml)
+[![Quality](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/quality.yml/badge.svg)](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/quality.yml)
+[![Build](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/build.yml/badge.svg)](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/build.yml)
+[![Release](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/release.yml/badge.svg)](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/release.yml)
 
 
 `pfsense-saml2-auth` is a packaged SAML2 authentication extension for the pfSense webConfigurator. Currently, pfSense 
@@ -30,7 +30,7 @@ No need to create local users before authenticating.
 ## Installation 
 To install, simply run the following command from the pfSense command line:<br>
 ```
-pkg add https://github.com/jaredhendrickson13/pfsense-saml2-auth/releases/latest/download/pfSense-2.8-pkg-saml2-auth.pkg
+pkg add https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/latest/download/pfSense-2.8-pkg-saml2-auth.pkg
 ```
 
 To uninstall:<br>
