@@ -17,11 +17,11 @@ found in the `templates` subdirectory
 ### Output
 Command will output the FreeBSD make command output. Outputs the following files:
 
-- `pfsense-saml2-auth/pfSense-pkg-saml2-auth/Makefile` : The rendered Makefile
-- `pfsense-saml2-auth/pfSense-pkg-saml2-auth/pkg-plist`: The rendered pkg-plist
-- `pfsense-saml2-auth/pfSense-pkg-saml2-auth/pfSense-pkg-saml2-auth-<VERSION>.pkg` : The FreeBSD package distribution file. On FreeBSD 11, 
-this should be located in the `pfsense-saml2-auth/pfSense-pkg-saml2-auth` directory after completion. On FreeBSD 12 it should be 
-located in the `pfsense-saml2-auth/pfSense-pkg-saml2-auth/work/pkg` directory.
+- `pfSense-pkg-saml2-auth/pfSense-pkg-saml2-auth/Makefile` : The rendered Makefile
+- `pfSense-pkg-saml2-auth/pfSense-pkg-saml2-auth/pkg-plist`: The rendered pkg-plist
+- `pfSense-pkg-saml2-auth/pfSense-pkg-saml2-auth/pfSense-pkg-saml2-auth-<VERSION>.pkg` : The FreeBSD package distribution file. On FreeBSD 11, 
+this should be located in the `pfSense-pkg-saml2-auth/pfSense-pkg-saml2-auth` directory after completion. On FreeBSD 12 it should be 
+located in the `pfSense-pkg-saml2-auth/pfSense-pkg-saml2-auth/work/pkg` directory.
 
 ### Notes
 - This script heavily depends on it's relative filepaths. You may execute the script from any directory, but do not move

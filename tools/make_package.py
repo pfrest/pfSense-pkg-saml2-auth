@@ -24,7 +24,7 @@ import sys
 import jinja2
 
 REPO_OWNER = "jaredhendrickson13"
-REPO_NAME = "pfsense-saml2-auth"
+REPO_NAME = "pfSense-pkg-saml2-auth"
 
 
 class MakePackage:

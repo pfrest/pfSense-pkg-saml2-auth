@@ -5,13 +5,13 @@
 [![Release](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/release.yml/badge.svg)](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/release.yml)
 
 
-`pfsense-saml2-auth` is a packaged SAML2 authentication extension for the pfSense webConfigurator. Currently, pfSense 
+`pfSense-pkg-saml2-auth` is a packaged SAML2 authentication extension for the pfSense webConfigurator. Currently, pfSense 
 only supports local, LDAP and RADIUS authentication and does not support any native multi-factor authentication (MFA). 
 At this time, there is unfortunately no roadmap for native SAML2 authentication or native MFA options on pfSense. With 
 [pfSense Plus](https://www.netgate.com/blog/pfsense-plus-21-02-release-and-pfsense-ce-2-5-0-release-now-available.html)
 being officially announced, it is unlikely we will see enterprise level features like SAML2 implemented in pfSense CE
 anytime soon. This can create major headaches when dealing with security compliance standards such as PCI DSS that may 
-require MFA on firewall admin logins. `pfsense-saml2-auth` helps alleviate this problem by allowing you to integrate 
+require MFA on firewall admin logins. `pfSense-pkg-saml2-auth` helps alleviate this problem by allowing you to integrate 
 single sign-on (SSO) with an identity provider such as Okta or OneLogin. In doing so, you will be able to use the identity 
 provider's built-in MFA for pfSense logins and greatly simplify user onboarding.<br><br>
 
