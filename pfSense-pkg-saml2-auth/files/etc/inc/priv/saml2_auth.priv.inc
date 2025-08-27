@@ -15,8 +15,14 @@
 
 global $priv_list;
 
-$priv_list['page-system-saml2-auth'] = array();
-$priv_list['page-system-saml2-auth']['name'] = "WebCfg - System: SAML2 authentication package";
-$priv_list['page-system-saml2-auth']['descr'] = "Allow access to SAML2 authentication package UI";
-$priv_list['page-system-saml2-auth']['match'] = array();
-$priv_list['page-system-saml2-auth']['match'][] = "saml2_auth*";
+# Define privilege for access the SAML2 settings page
+$priv_list['page-system-saml2-settings'] = [];
+$priv_list['page-system-saml2-settings']['name'] = "WebCfg - System: SAML2 Settings";
+$priv_list['page-system-saml2-settings']['descr'] = "Allow access to SAML2 package's settings page.";
+$priv_list['page-system-saml2-settings']['match'] = ["system_saml2_settings.php"];
+
+# Define privilege for accessing the SAML2 update
+$priv_list['page-system-saml2-update'] = [];
+$priv_list['page-system-saml2-update']['name'] = "WebCfg - System: SAML2 Update";
+$priv_list['page-system-saml2-update']['descr'] = "Allow access to SAML2 package's update page.";
+$priv_list['page-system-saml2-update']['match'] = ["system_saml2_update.php"];

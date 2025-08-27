@@ -7,7 +7,7 @@
         <website>https://github.com/pfrest/pfSense-pkg-saml2-auth</website>
         <category>System</category>
         <version>%%PKGVERSION%%</version>
-        <configurationfile>saml2_auth.xml</configurationfile>
+        <configurationfile>saml2.xml</configurationfile>
         <maintainer>jaredhendrickson13@gmail.com</maintainer>
         <conf>
             <enable></enable>

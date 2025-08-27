@@ -19,7 +19,7 @@
         <name>SAML2</name>
         <tooltiptext>A SAML2 authentication extension for the pfSense UI</tooltiptext>
         <section>System</section>
-        <url>/saml2_auth/</url>
+        <url>/system_saml2_settings.php</url>
     </menu>
     <tabs>
     </tabs>

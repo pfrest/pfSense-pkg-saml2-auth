@@ -8,10 +8,10 @@ fi
 /usr/local/bin/php -f /etc/rc.packages %%PORTNAME%% ${2}
 
 # Restore overriden files to their original state
-/bin/cp /etc/inc/auth.inc.original /etc/inc/auth.inc
-/bin/cp /etc/inc/authgui.inc.original /etc/inc/authgui.inc
-/bin/cp /etc/inc/priv.inc.original /etc/inc/priv.inc
-echo "Restoring overridden files to original state...done."
+#/bin/cp /etc/inc/auth.inc.original /etc/inc/auth.inc
+#/bin/cp /etc/inc/authgui.inc.original /etc/inc/authgui.inc
+#/bin/cp /etc/inc/priv.inc.original /etc/inc/priv.inc
+#echo "Restoring overridden files to original state...done."
 
 # Remove the pfsense-saml2 CLI tool
 rm /usr/local/bin/pfsense-saml2

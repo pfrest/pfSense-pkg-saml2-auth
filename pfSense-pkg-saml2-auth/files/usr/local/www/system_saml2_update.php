@@ -13,47 +13,47 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-include_once("util.inc");
-include_once("guiconfig.inc");
-require_once("saml2_auth/SAML2Auth.inc");
+require_once("guiconfig.inc");
+require_once("Saml2/autoload.php");;
 
+use function Saml2\Update\get_latest_pkg_release_date;
+use function Saml2\Update\get_latest_pkg_version;
+use function Saml2\Update\get_pfsense_version;
+use function Saml2\Update\get_pkg_version;
+use function Saml2\Update\get_supported_pkg_releases;
+use function Saml2\Update\is_update_available;
 
 # Initialize the pfSense UI page (note: $pgtitle must be defined before including head.inc)
 $pgtitle = array(gettext('System'), gettext('SAML2'), gettext('Update'));
 include('head.inc');
-$update_tab = (SAML2Auth::is_update_available()) ? "Update (New Release Available)" : "Update";
-$tab_array = [[gettext("Settings"), false, "/saml2_auth/"], [gettext($update_tab), true, "/saml2_auth/update/"]];
-display_top_tabs($tab_array, true);    # Ensure the tabs are written to the top of page
+$tab_array = [
+    [gettext("Settings"), false, "/system_saml2_settings.php"],
+    [gettext("Update"), true, "/system_saml2_update.php"]
+];
+display_top_tabs($tab_array, true);    # Ensures the tabs are written to the top of page
 
 # Variables
 $form = new Form(false);
-$pf_ver = SAML2Auth::get_pfsense_version(true);
-$curr_ver = SAML2Auth::get_pkg_version();
-$latest_ver = SAML2Auth::get_latest_pkg_version();
-$latest_ver_date = date("Y-m-d", strtotime(SAML2Auth::get_latest_pkg_release_date()));
-$all_vers = SAML2Auth::get_all_pkg_versions();
-$curr_ver_msg = (SAML2Auth::is_update_available()) ? " - Update available" : " - Up-to-date";
-
+$pf_ver = get_pfsense_version();
+$curr_ver = get_pkg_version();
+$latest_ver = get_latest_pkg_version();
+$latest_ver_date = get_latest_pkg_release_date();
+$all_vers = get_supported_pkg_releases();
+$curr_ver_msg = (is_update_available()) ? " - Update available" : " - Up-to-date";
 
 # On POST, start the update process
 if ($_POST["confirm"] and !empty($_POST["version"])) {
     # Start the update process in the background and print notice
-    shell_exec("nohup pfsense-saml2 update ".escapeshellarg($_POST["version"])." > /dev/null &");
+    shell_exec("nohup pfsense-saml2 revert ".escapeshellarg($_POST["version"])." > /dev/null &");
     print_apply_result_box(0, "\nSAML2 package update process has started and is running in the background. Check back in a few minutes.");
 }
 
 # Populate our update status form
 $update_status_section = new Form_Section('Update Status');
-$update_status_section->addInput(new Form_StaticText(
-    'Support Status',
-    (SAML2Auth::is_pkg_supported()) ? "<span style='color: green'>Verified</span>" : "<span style='color: red'>Unverified</span>"
-))->setHelp(
-    "Displays whether or not the package version currently installed fully supports pfSense ".$pf_ver."."
-);
 $update_status_section->addInput(new Form_StaticText('Current Version', $curr_ver.$curr_ver_msg));
 $update_status_section->addInput(new Form_StaticText(
     'Latest Version',
-    $latest_ver." - <a href='https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/tag/v".$latest_ver."'>View Release</a>"." - Released on ".$latest_ver_date
+    $latest_ver." - <a href='https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/tag/".$latest_ver."'>View Release</a>"." - Released on ".$latest_ver_date
 ));
 
 # Populate our update settings form
@@ -62,7 +62,7 @@ $update_settings_section->addInput(new Form_Select(
     'version',
     'Select Version',
     $latest_ver,
-    $all_vers
+    array_keys($all_vers)
 ))->setHelp(
     "Select the version you'd like to update or rollback to. Only releases capable of installing on pfSense ".$pf_ver." 
     are shown. Use caution when reverting to a previous version of the package as this can remove some features and/or 

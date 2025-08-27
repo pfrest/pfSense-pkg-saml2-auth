@@ -53,7 +53,6 @@
     margin: 8px;
     border-radius: 50%;
     border: 6px solid gray;
-    border-color: gray transparent gray transparent;
     animation: saml2_redirect_loader_animation 1.2s linear infinite;
 }
 @keyframes saml2_redirect_loader_animation {

@@ -13,11 +13,14 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-require_once("saml2_auth/SAML2Auth.inc");
+require_once("Saml2/autoload.php");
+
+use Saml2\Auth;
+
 session_start();
 
 # Create the saml2 authentication object
-$saml2_auth = new SAML2Auth();
+$saml2_auth = new Auth();
 
 # Return SP metadata
 $saml2_auth->metadata();

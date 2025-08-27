@@ -1,0 +1,13 @@
+site_name: pfSense SAML2 Package Documentation
+nav:
+  - General:
+      - Home: index.md
+theme:
+  name: readthedocs
+  features:
+    - search
+    - navigation.tabs
+markdown_extensions:
+  - admonition
+  - codehilite:
+      linenums: true
