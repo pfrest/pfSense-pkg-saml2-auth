@@ -30,240 +30,240 @@ require_once("auth_func.inc");
 
 /* Load and process custom privs. */
 function get_priv_files($directory) {
-    $dir_array = array();
-    if (!is_dir($directory)) {
-        return;
-    }
-    if ($dh = opendir($directory)) {
-        while (($file = readdir($dh)) !== false) {
-            $canadd = 0;
-            if ($file == ".") {
-                $canadd = 1;
-            }
-            if ($file == "..") {
-                $canadd = 1;
-            }
-            if ($canadd == 0) {
-                array_push($dir_array, $file);
-            }
-        }
-        closedir($dh);
-    }
-    if (!is_array($dir_array)) {
-        return;
-    }
-    return $dir_array;
+	$dir_array = array();
+	if (!is_dir($directory)) {
+		return;
+	}
+	if ($dh = opendir($directory)) {
+		while (($file = readdir($dh)) !== false) {
+			$canadd = 0;
+			if ($file == ".") {
+				$canadd = 1;
+			}
+			if ($file == "..") {
+				$canadd = 1;
+			}
+			if ($canadd == 0) {
+				array_push($dir_array, $file);
+			}
+		}
+		closedir($dh);
+	}
+	if (!is_array($dir_array)) {
+		return;
+	}
+	return $dir_array;
 }
 
 // Load and sort privs
 $dir_array = get_priv_files("/etc/inc/priv");
 foreach ($dir_array as $file) {
-    if (!is_dir("/etc/inc/priv/{$file}") && substr($file, -4) == ".inc") {
-        include_once("/etc/inc/priv/{$file}");
-    }
+	if (!is_dir("/etc/inc/priv/{$file}") && substr($file, -4) == ".inc") {
+		include_once("/etc/inc/priv/{$file}");
+	}
 }
 if (is_dir("/usr/local/pkg/priv")) {
-    $dir_array = get_priv_files("/usr/local/pkg/priv");
-    foreach ($dir_array as $file) {
-        if (!is_dir("/usr/local/pkg/priv/{$file}") &&
-            substr($file, -4) == ".inc") {
-            include_once("/usr/local/pkg/priv/{$file}");
-        }
-    }
+	$dir_array = get_priv_files("/usr/local/pkg/priv");
+	foreach ($dir_array as $file) {
+		if (!is_dir("/usr/local/pkg/priv/{$file}") &&
+		    substr($file, -4) == ".inc") {
+			include_once("/usr/local/pkg/priv/{$file}");
+		}
+	}
 }
 
 if (is_array($priv_list)) {
-    sort_privs($priv_list);
+	sort_privs($priv_list);
 }
 
 function cmp_privkeys($a, $b) {
-    /* user privs at the top */
-    $auser = strncmp("user-", $a, 5);
-    $buser = strncmp("user-", $b, 5);
-    if ($auser != $buser) {
-        return $auser - $buser;
-    }
+	/* user privs at the top */
+	$auser = strncmp("user-", $a, 5);
+	$buser = strncmp("user-", $b, 5);
+	if ($auser != $buser) {
+		return $auser - $buser;
+	}
 
-    /* name compare others */
-    return strcasecmp($a, $b);
+	/* name compare others */
+	return strcasecmp($a, $b);
 }
 
 function sort_privs(& $privs) {
-    uksort($privs, "cmp_privkeys");
+	uksort($privs, "cmp_privkeys");
 }
 
 function map_page_privname($page) {
-    global $priv_list;
+	global $priv_list;
 
-    foreach ($priv_list as $pname => $pdata) {
-        if (strncmp($pname, "page-", 5)) {
-            continue;
-        }
-        $fullwc = false;
-        if (!strcasecmp($page, "any")||!strcmp($page, "*")) {
-            $fullwc = true;
-        }
-        if (cmp_page_matches($page, $pdata['match'], $fullwc)) {
-            return $pname;
-        }
-    }
+	foreach ($priv_list as $pname => $pdata) {
+		if (strncmp($pname, "page-", 5)) {
+			continue;
+		}
+		$fullwc = false;
+		if (!strcasecmp($page, "any")||!strcmp($page, "*")) {
+			$fullwc = true;
+		}
+		if (cmp_page_matches($page, $pdata['match'], $fullwc)) {
+			return $pname;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 function get_user_privdesc($user) {
-    global $priv_list;
+	global $priv_list;
 
-    $privs = array();
+	$privs = array();
 
-    $user_privs = $user['priv'];
-    if (!is_array($user_privs)) {
-        $user_privs = array();
-    }
+	$user_privs = $user['priv'];
+	if (!is_array($user_privs)) {
+		$user_privs = array();
+	}
 
-    $names = local_user_get_groups($user, true);
+	$names = local_user_get_groups($user, true);
 
-    foreach ($names as $name) {
-        $group = getGroupEntry($name);
-        $group = $group['item'];
-        $group_privs = $group['priv'];
-        if (!is_array($group_privs)) {
-            continue;
-        }
-        foreach ($group_privs as $pname) {
-            if (in_array($pname, $user_privs)) {
-                continue;
-            }
-            if (!$priv_list[$pname]) {
-                continue;
-            }
-            $priv = $priv_list[$pname];
-            $priv['group'] = $group['name'];
-            $privs[] = $priv;
-        }
-    }
+	foreach ($names as $name) {
+		$group = getGroupEntry($name);
+		$group = $group['item'];
+		$group_privs = $group['priv'];
+		if (!is_array($group_privs)) {
+			continue;
+		}
+		foreach ($group_privs as $pname) {
+			if (in_array($pname, $user_privs)) {
+				continue;
+			}
+			if (!$priv_list[$pname]) {
+				continue;
+			}
+			$priv = $priv_list[$pname];
+			$priv['group'] = $group['name'];
+			$privs[] = $priv;
+		}
+	}
 
-    foreach ($user_privs as $pname) {
-        if ($priv_list[$pname]) {
-            $privs[] = $priv_list[$pname];
-        }
-    }
+	foreach ($user_privs as $pname) {
+		if ($priv_list[$pname]) {
+			$privs[] = $priv_list[$pname];
+		}
+	}
 
-    return $privs;
+	return $privs;
 }
 
 function isAdminUID($username) {
-    global $_SESSION;
+	global $_SESSION;
 
-    if (!isset($username)) {
-        return false;
-    }
+	if (!isset($username)) {
+		return false;
+	}
 
-    /* admin/root access check */
-    $user = getUserEntry($username);
-    $user = $user['item'];
-    if (isset($user)) {
-        if (isset($user['uid'])) {
-            if ($user['uid'] == 0) {
-                return true;
-            }
-        }
-    }
+	/* admin/root access check */
+	$user = getUserEntry($username);
+	$user = $user['item'];
+	if (isset($user)) {
+		if (isset($user['uid'])) {
+			if ($user['uid'] == 0) {
+				return true;
+			}
+		}
+	}
 
-    return false;
+	return false;
 }
 
 function isAllowed($username, $page) {
-    global $_SESSION;
+	global $_SESSION;
 
-    if (!isset($username)) {
-        return false;
-    }
+	if (!isset($username)) {
+		return false;
+	}
 
-    if (isAdminUID($username)) {
-        return true;
-    }
+	if (isAdminUID($username)) {
+		return true;
+	}
 
-    /* user privilege access check */
-    if (cmp_page_matches($page, $_SESSION['page-match'])) {
-        return true;
-    }
+	/* user privilege access check */
+	if (cmp_page_matches($page, $_SESSION['page-match'])) {
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 function isAllowedPage($page) {
-    global $_SESSION;
+	global $_SESSION;
 
 
-    $username = $_SESSION['Username'];
+	$username = $_SESSION['Username'];
 
-    if (!isset($username)) {
-        return false;
-    }
+	if (!isset($username)) {
+		return false;
+	}
 
-    if (isAdminUID($username)) {
-        return true;
-    }
+	if (isAdminUID($username)) {
+		return true;
+	}
 
-    /* user privilege access check */
-    return cmp_page_matches($page, $_SESSION['page-match']);
+	/* user privilege access check */
+	return cmp_page_matches($page, $_SESSION['page-match']);
 }
 
 function getPrivPages(& $entry, & $allowed_pages) {
-    global $priv_list;
+	global $priv_list;
 
-    if (!is_array($entry['priv'])) {
-        return;
-    }
+	if (!is_array($entry['priv'])) {
+		return;
+	}
 
-    foreach ($entry['priv'] as $pname) {
-        if (strncmp($pname, "page-", 5) ||
-            !is_array($priv_list[$pname]) ||
-            !is_array($priv_list[$pname]['match'])) {
-            continue;
-        }
-        foreach ($priv_list[$pname]['match'] as $match) {
-            $allowed_pages[] = $match;
-        }
-    }
+	foreach ($entry['priv'] as $pname) {
+		if (strncmp($pname, "page-", 5) ||
+		    !is_array($priv_list[$pname]) ||
+		    !is_array($priv_list[$pname]['match'])) {
+			continue;
+		}
+		foreach ($priv_list[$pname]['match'] as $match) {
+			$allowed_pages[] = $match;
+		}
+	}
 }
 
 function getAllowedPages($username, &$attributes = array()) {
-    global $_SESSION;
+	global $_SESSION;
 
-    if (!function_exists("ldap_connect")) {
-        return;
-    }
+	if (!function_exists("ldap_connect")) {
+		return;
+	}
 
-    $allowed_pages = array();
-    $allowed_groups = array();
+	$allowed_pages = array();
+	$allowed_groups = array();
 
-    phpsession_begin();
-    if ($_SESSION['remoteauth']) {
-        $authcfg = auth_get_authserver(config_get_path('system/webgui/authmode'));
-        // cache auth results for a short time to ease load on auth services & logs
-        $recheck_time = config_get_path('system/webgui/auth_refresh_time', 30);
-        // obtain ldap groups if we are in ldap mode
-        if ($authcfg['type'] == "ldap") {
-            if (isset($_SESSION["ldap_allowed_groups"]) &&
-                (time() <= $_SESSION["auth_check_time"] + $recheck_time)) {
-                $allowed_groups = $_SESSION["ldap_allowed_groups"];
-            } else {
-                $allowed_groups = @ldap_get_groups($username, $authcfg);
-                $_SESSION["ldap_allowed_groups"] = $allowed_groups;
-                $_SESSION["auth_check_time"] = time();
-            }
-        } elseif ($authcfg['type'] == "radius") {
-            if (isset($_SESSION["radius_allowed_groups"]) &&
-                (time() <= $_SESSION["auth_check_time"] + $recheck_time)) {
-                $allowed_groups = $_SESSION["radius_allowed_groups"];
-            } else {
-                $allowed_groups = @radius_get_groups($attributes);
-                $_SESSION["radius_allowed_groups"] = $allowed_groups;
-                $_SESSION["auth_check_time"] = time();
-            }
-        }
+ 	phpsession_begin();
+	if ($_SESSION['remoteauth']) {
+		$authcfg = auth_get_authserver(config_get_path('system/webgui/authmode'));
+		// cache auth results for a short time to ease load on auth services & logs
+		$recheck_time = config_get_path('system/webgui/auth_refresh_time', 30);
+		// obtain ldap groups if we are in ldap mode
+		if ($authcfg['type'] == "ldap") {
+			if (isset($_SESSION["ldap_allowed_groups"]) &&
+			    (time() <= $_SESSION["auth_check_time"] + $recheck_time)) {
+				$allowed_groups = $_SESSION["ldap_allowed_groups"];
+			} else {
+				$allowed_groups = @ldap_get_groups($username, $authcfg);
+				$_SESSION["ldap_allowed_groups"] = $allowed_groups;
+				$_SESSION["auth_check_time"] = time();
+			}
+		} elseif ($authcfg['type'] == "radius") {
+			if (isset($_SESSION["radius_allowed_groups"]) &&
+			    (time() <= $_SESSION["auth_check_time"] + $recheck_time)) {
+				$allowed_groups = $_SESSION["radius_allowed_groups"];
+			} else {
+				$allowed_groups = @radius_get_groups($attributes);
+				$_SESSION["radius_allowed_groups"] = $allowed_groups;
+				$_SESSION["auth_check_time"] = time();
+			}
+		}
 
         # Added by pfSense-pkg-saml2-auth - set SAML2 user's group assignments as specified by the SAML2 assertion
         if ($_SESSION["authsource"] === "SAML2") {
@@ -272,52 +272,52 @@ function getAllowedPages($username, &$attributes = array()) {
             $allowed_groups = $_SESSION["saml2_user_data"][$pkg_conf["idp_groups_attribute"]];
         }
 
-    }
-    if (!$allowed_groups) {
-        // search for a local user by name
-        $local_user = getUserEntry($username);
-        $local_user = $local_user['item'];
+	}
+	if (!$allowed_groups) {
+		// search for a local user by name
+		$local_user = getUserEntry($username);
+		$local_user = $local_user['item'];
 
-        // obtain local user pages and groups if we have a local user
-        if ($local_user) {
-            getPrivPages($local_user, $allowed_pages);
-            $allowed_groups = local_user_get_groups($local_user);
-        }
-    }
+		// obtain local user pages and groups if we have a local user
+		if ($local_user) {
+			getPrivPages($local_user, $allowed_pages);
+			$allowed_groups = local_user_get_groups($local_user);
+		}
+	}
 
-    if (!is_array($allowed_groups)) {
-        $allowed_groups = array('all');
-    } else {
-        $allowed_groups[] = 'all';
-    }
+	if (!is_array($allowed_groups)) {
+		$allowed_groups = array('all');
+	} else {
+		$allowed_groups[] = 'all';
+	}
 
-    // build a list of allowed pages
-    $group_config = config_get_path('system/group');
-    if (is_array($group_config) && is_array($allowed_groups)) {
-        foreach ($group_config as $group) {
-            if (in_array($group['name'], $allowed_groups)) {
-                getPrivPages($group, $allowed_pages);
-            }
-        }
-    }
+	// build a list of allowed pages
+	$group_config = config_get_path('system/group');
+	if (is_array($group_config) && is_array($allowed_groups)) {
+		foreach ($group_config as $group) {
+			if (in_array($group['name'], $allowed_groups)) {
+				getPrivPages($group, $allowed_pages);
+			}
+		}
+	}
 
 //	$dbg_pages = implode(",", $allowed_pages);
 //	$dbg_groups = implode(",", $allowed_groups);
 //	log_error("debug: user {$username} groups = {$dbg_groups}");
 //	log_error("debug: user {$username} pages = {$dbg_pages}");
 
-    $_SESSION['page-match'] = $allowed_pages;
-    phpsession_end(true);
-    return $allowed_pages;
+	$_SESSION['page-match'] = $allowed_pages;
+	phpsession_end(true);
+	return $allowed_pages;
 }
 
 function sort_user_privs($privs) {
-    // Privileges to place first, to redirect properly.
-    $priority_privs = array("page-dashboard-all", "page-system-login-logout");
+	// Privileges to place first, to redirect properly.
+	$priority_privs = array("page-dashboard-all", "page-system-login-logout");
 
-    $fprivs = array_intersect($privs, $priority_privs);
-    $sprivs = array_diff($privs, $priority_privs);
+	$fprivs = array_intersect($privs, $priority_privs);
+	$sprivs = array_diff($privs, $priority_privs);
 
-    return array_merge($fprivs, $sprivs);
+	return array_merge($fprivs, $sprivs);
 }
 ?>
