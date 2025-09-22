@@ -1,6 +1,7 @@
 <?php
-# Include the Composer autoloader
-require_once('Saml2/Vendor/autoload.php');
+
+# Include the autoload file for packages installed via Composer
+require_once("Saml2/Vendor/autoload.php");
 
 # Include pfSense libraries
 require_once("config.inc");

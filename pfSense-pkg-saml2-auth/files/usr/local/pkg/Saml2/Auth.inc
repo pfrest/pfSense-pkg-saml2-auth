@@ -18,6 +18,10 @@ namespace Saml2;
 require_once('Saml2/autoload.php');
 
 use Exception;
+use OneLogin\Saml2\Error;
+use OneLogin\Saml2\IdPMetadataParser;
+use OneLogin\Saml2\Settings;
+use OneLogin\Saml2\Utils;
 
 /**
  * Defines a class container our SAML2 handlers.
@@ -25,8 +29,11 @@ use Exception;
 class Auth {
     const SP_METADATA_URL = "/saml2_auth/sso/metadata/";
     const SP_ACS_URL = "/saml2_auth/sso/acs/";
+    const SSO_URL = "/saml2_auth/sso/";
+    const SSO_ERROR_URL = "/saml2_auth/sso/error/";
+    const SSO_REDIRECT_URL = "/saml2_auth/sso/redirect/";
     
-    public OneLogin\Saml2\Auth $auth;
+    public \OneLogin\Saml2\Auth $auth;
     public Config $config;
 
     /**
@@ -42,9 +49,10 @@ class Auth {
         if (!$no_auth) {
             # Try to start SAML2 authentication, handle errors accordingly
             try {
-                $this->auth = new OneLogin\Saml2\Auth($this::get_saml_settings());
-            } catch (OneLogin\Saml2\Error $error) {
-                echo $error->getMessage().PHP_EOL;
+                $this->auth = new \OneLogin\Saml2\Auth($this::get_saml_settings());
+            } catch (Exception $error) {
+                $this->log(level: LOG_ERR, message: $error->getMessage());
+                header("Location: ".self::SSO_ERROR_URL);
                 exit();
             }
         }
@@ -58,19 +66,36 @@ class Auth {
     public function sso(string $redirect): void {
         # Mark the SAML2 login as in process and start login
         $_SESSION["saml2_started"] = true;
-        $this->auth->login($redirect);
+
+        # Try to start SAML2 authentication, handle errors accordingly
+        try {
+            $this->auth->login($redirect);
+        } catch (Exception $error) {
+            $this->log(level: LOG_ERR, message: $error->getMessage());
+            header("Location: ".self::SSO_ERROR_URL);
+            exit();
+        }
     }
 
     /**
-     * The ACS handler for SAML2 responses.
+     * The ACS handler for SAML2 responses. This method is responsible for processing the SAML2 response from
+     * the IdP and setting session variables accordingly.
      */
     public function acs(): void {
         # Check the state of SAML2 authentication. Only proceeds if in expected state.
         $this->__check_saml2_state();
-
-        # Remove the saml2_started handler and process our request response
         unset($_SESSION['saml2_started']);
-        $this->auth->processResponse($_SESSION['AuthNRequestID']);
+
+
+        # Attempt to process the SAML response
+        try {
+            $this->auth->processResponse($_SESSION['AuthNRequestID']);
+        }
+        catch (Exception $error) {
+            $this->log(level: LOG_ERR, message: $error->getMessage());
+            header("Location: ".self::SSO_ERROR_URL);
+            exit();
+        }
 
         # If the sign on attempt is valid, map attributes to our session array.
         if ($this->auth->isAuthenticated()) {
@@ -81,7 +106,7 @@ class Auth {
             unset($_SESSION['AuthNRequestID']);
 
             # Support RelayState settings
-            if (isset($_POST['RelayState']) && OneLogin\Saml2\Utils::getSelfURL() != $_POST['RelayState']) {
+            if (isset($_POST['RelayState']) && Utils::getSelfURL() != $_POST['RelayState']) {
                 $this->auth->redirectTo($_POST['RelayState']);
             }
         }
@@ -91,26 +116,47 @@ class Auth {
     }
 
     /**
-     * Sets up SAML2 settings and metadata.
+     * Sets up SAML2 settings and metadata. This method is responsible for generating and validating the SP metadata.
      */
     public function metadata(): void {
         try {
             # Validate the SP metadata and print the XML metadata if valid
-            $settings = new OneLogin\Saml2\Settings($this->get_saml_settings(), true);
+            $settings = new Settings($this->get_saml_settings(), spValidationOnly: true);
             $metadata = $settings->getSPMetadata();
             $errors = $settings->validateMetadata($metadata);
             if (empty($errors)) {
                 header('Content-Type: text/xml');
                 echo $metadata;
-            } else {
-                throw new OneLogin\Saml2\Error (
-                    'Invalid SP metadata: '.implode(', ', $errors),
-                    OneLogin\Saml2\Error::METADATA_SP_INVALID
-                );
+                return;
             }
+            throw new Error (
+                msg: 'Invalid SP metadata: '.implode(', ', $errors),
+                code: Error::METADATA_SP_INVALID
+            );
         } catch (Exception $e) {
-            echo $e->getMessage();
+            $this->log(level: LOG_ERR, message: $e->getMessage());
+            header("Location: ".self::SSO_ERROR_URL);
+            exit();
+
         }
+    }
+
+    /**
+     * Writes a log entry to the applicable log file
+     * @param string $logfile The log file to write to. Use `auth` to write to the auth log (will print to console) or
+     * `saml2` to write to the saml2 package log file.
+     */
+    public function log(int $level, string $message, string $logfile="saml2"): void
+    {
+        # Only log debug messages when verbose logging is enabled
+        if ($level === LOG_DEBUG and !$this->config->verbose_logging) {
+            return;
+        }
+
+        # Otherwise, write to the applicable log file
+        openlog($logfile, flags: LOG_PID, facility: LOG_LOCAL0);
+        syslog(priority: $level, message: $message);
+        closelog();
     }
 
     /**
@@ -120,13 +166,13 @@ class Auth {
     private function __check_saml2_state(): void {
         # Redirect to home page if user is already logged in
         if ($_SESSION['Logged_In']) {
-            header("Location: /saml2_auth/sso/redirect/");
+            header("Location: ".self::SSO_REDIRECT_URL);
             exit();
         }
 
         # Redirect to SSO login if the login process has not been started
         if (!$_SESSION['saml2_started']) {
-            header("Location: /saml2_auth/sso/");
+            header("Location: ".self::SSO_URL);
             exit();
         }
     }
@@ -136,14 +182,13 @@ class Auth {
      * when authentication fails.
      */
     public function get_saml2_errors(): void {
-        # Print SAML errors if they exist
+        # If errors are found, destroy the session, log them, and redirect to the error page
         if (!empty($this->auth->getErrors())) {
             session_destroy();
-            echo '<pre>',implode(', ', $this->auth->getErrors()),'</pre>';
-            if ($this->auth->getSettings()->isDebugActive()) {
-                echo '<pre>'.$this->auth->getLastErrorReason().'</pre>';
-                exit();
+            foreach ($this->auth->getErrors() as $error) {
+                $this->log(level: LOG_ERR, message: $error);
             }
+            header("Location: ".self::SSO_ERROR_URL);
         }
     }
 
@@ -152,34 +197,56 @@ class Auth {
      * @return array The settings array for the onelogin/php-saml library
      */
     public function get_saml_settings(): array {
-        # Local variables
-        $php_saml_config = array (
-            'debug' => $this->config->debug_mode,
-            'sp' => array (
+        $php_saml_config = [
+            'debug' => true, // Errors are securely logged to the saml2 log file
+            'strict' => true,
+            'sp' => [
                 'entityId' => $this->config->sp_base_url.self::SP_METADATA_URL,
-                'assertionConsumerService' => array (
+                'assertionConsumerService' => [
                     'url' => $this->config->sp_base_url.self::SP_ACS_URL,
-                ),
+                ],
                 'NameIDFormat' => 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified',
-            ),
-            'idp' => array (
+            ],
+            'idp' => [
                 'entityId' => $this->config->idp_entity_id,
-                'singleSignOnService' => array (
+                'singleSignOnService' => [
                     'url' => $this->config->idp_sign_on_url,
-                ),
+                ],
                 'x509cert' => $this->config->idp_x509_cert
-            ),
-        );
+            ],
+        ];
 
-        # When custom parameters are configured, update the config to include them
-        if (!empty($this->config->custom_conf)) {
-            # Decode the custom configuration values. This should be a Base64 encoded JSON string
-            $custom_conf = json_decode($this->config->custom_conf, true);
-            # Only merge custom configuration in if it decodes to an array
-            if (is_array($custom_conf)) {
-                $php_saml_config = array_merge_recursive($php_saml_config, $custom_conf);
+        # When an IdP metadata URL is configured, allow the IdP metadata to override the current IdP settings
+        if ($this->config->idp_metadata_url) {
+            try {
+                $idp_metadata = IdPMetadataParser::parseRemoteXML($this->config->idp_metadata_url);
+                $php_saml_config = array_replace_recursive($php_saml_config, $idp_metadata);
+                $this->log(
+                    level: LOG_DEBUG,
+                    message: "Fetched IdP metadata from {$this->config->idp_metadata_url} ".
+                        "yielded: ".json_encode($idp_metadata)
+                );
+            }
+            catch (Exception $error) {
+                $this->log(level: LOG_ERR, message: $error->getMessage());
+                header("Location: ".self::SSO_ERROR_URL);
             }
         }
+
+        # When custom parameters are configured, update the config to include them
+        if ($this->config->custom_conf) {
+            # Decode the custom configuration values. This should be a Base64 encoded JSON string
+            $custom_conf = json_decode($this->config->custom_conf, true);
+
+            # Only merge custom configuration in if it decodes to an array
+            if (is_array($custom_conf)) {
+                $php_saml_config = array_replace_recursive($php_saml_config, $custom_conf);
+            }
+        }
+
+        # Log the final configuration at debug level
+        $this->log(level: LOG_DEBUG, message: "Using SAML2 settings: ".json_encode($php_saml_config));
+
         return $php_saml_config;
     }
 }

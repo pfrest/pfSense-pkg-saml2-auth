@@ -13,8 +13,8 @@
 	]]>
     </copyright>
     <description>A SAML2 authentication extension for the pfSense UI</description>
-    <name>SAML2 Authentication</name>
-    <title>System: SAML2 Authentication</title>
+    <name>SAML2</name>
+    <title>System: SAML2</title>
     <menu>
         <name>SAML2</name>
         <tooltiptext>A SAML2 authentication extension for the pfSense UI</tooltiptext>

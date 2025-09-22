@@ -1,7 +1,15 @@
 site_name: pfSense SAML2 Package Documentation
+repo_url: https://github.com/pfrest/pfSense-pkg-saml2-auth
 nav:
   - General:
       - Home: index.md
+      - Installation: INSTALLATION.md
+      - IdP Instructions:
+          - Overview: IDP_INSTRUCTIONS.md
+          - Okta: idp/OKTA.md
+          - JumpCloud: idp/JUMPCLOUD.md
+          - OneLogin: idp/ONELOGIN.md
+      - FAQs: FAQS.md
 theme:
   name: readthedocs
   features:

@@ -23,12 +23,14 @@ use function Saml2\Update\get_pkg_version;
 use function Saml2\Update\update_pkg;
 use const Saml2\Update\RELEASES_CACHE_FILE;
 
+const REFRESH_CACHE_CMD = '/usr/local/bin/php -f /usr/local/pkg/Saml2/manage.php refreshcache';
+
 /**
  * Performs a backup of the SAML2 configuration
  */
 function backup(): void {
     # Start the backup process
-    echo "Backing up SAML2 configuration...";
+    echo "Backing up SAML2 configuration... ";
     $config = new Config();
     $backup_success = $config->backup();
 
@@ -48,7 +50,7 @@ function backup(): void {
  */
 function restore(): void {
     # Start the restore process
-    echo "Restoring SAML2 configuration...";
+    echo "Restoring SAML2 configuration... ";
     $config = new Config();
     $restore_status = $config->restore();
 
@@ -73,7 +75,7 @@ function restore(): void {
  */
 function refreshcache(): void {
     # Start the cache refresh process
-    echo "Refreshing package releases cache...";
+    echo "Refreshing package cache files... ";
     try {
         $cache = fetch_pkg_releases();
     }
@@ -95,10 +97,49 @@ function refreshcache(): void {
 }
 
 /**
+ * Sets up cron schedules for the package
+ */
+function setupschedule(): void {
+    # Setup the cron job to run hourly
+    echo "Setting up cron schedules... ";
+    $cron_job = ["minute" => "@hourly", "who" => "root", "command" => REFRESH_CACHE_CMD];
+    $cron_jobs = config_get_path("cron/item", []);
+    $cron_jobs[] = $cron_job;
+    config_set_path("cron/item", $cron_jobs);
+    write_config("Created cron job for pfSense-pkg-saml2-auth package");
+    configure_cron();
+
+    echo "done.".PHP_EOL;
+    exit(0);
+}
+
+/**
+ * Removes cron schedules for the package
+ */
+function removeschedule(): void
+{
+    echo "Removing cron schedules... ";
+
+    # Remove any existing cron jobs for this command
+    foreach (config_get_path("cron/item", []) as $index => $cron) {
+        if ($cron['command'] === REFRESH_CACHE_CMD) {
+            config_del_path("cron/item/$index");
+            write_config("Removed cron job for pfSense-pkg-saml2-auth package");
+            break;
+        }
+    }
+
+    # Apply the changes to cron
+    configure_cron();
+    echo "done.".PHP_EOL;
+    exit(0);
+}
+
+/**
  * Updates the pfSense-pkg-saml2-auth package to the latest version
  */
 function update(): void {
-    echo "Updating package to latest version...";
+    echo "Updating package to latest version... ";
 
     # Try to update the package, print an error message if it fails and exit with a non-zero code
     try {
@@ -118,7 +159,7 @@ function update(): void {
  * Reverts the pfSense-pkg-saml2-auth package to the specified version
  */
 function revert(string $version): void {
-    echo "Reverting package to $version...";
+    echo "Reverting package to $version... ";
 
     # Try to revert the package, print an error message if it fails and exit with a non-zero code
     try {
@@ -151,13 +192,15 @@ function help(): void {
     echo "SYNTAX:".PHP_EOL;
     echo "  pfsense-saml2 <command> <args>".PHP_EOL;
     echo "COMMANDS:".PHP_EOL;
-    echo "  backup        : Makes a backup of the SAML2 configuration".PHP_EOL;
-    echo "  restore       : Restores the SAML2 configuration from a JSON backup".PHP_EOL;
-    echo "  refreshcache  : Refreshes the releases cache for package updates".PHP_EOL;
-    echo "  update        : Update to the latest version of the package".PHP_EOL;
-    echo "  revert        : Revert to a specific version of the package".PHP_EOL;
-    echo "  version       : Displays the current version of pfSense-pkg-saml2-auth".PHP_EOL;
-    echo "  help          : Displays the help page (this page)".PHP_EOL.PHP_EOL;
+    echo "  backup          : Makes a backup of the SAML2 configuration".PHP_EOL;
+    echo "  restore         : Restores the SAML2 configuration from the JSON backup".PHP_EOL;
+    echo "  refreshcache    : Refreshes the releases cache files used for updates".PHP_EOL;
+    echo "  setupschedule   : Sets up cron schedules for the package".PHP_EOL;
+    echo "  removeschedule  : Removes cron schedules for the package".PHP_EOL;
+    echo "  update          : Update to the latest version of the package".PHP_EOL;
+    echo "  revert          : Revert to a specific version of the package".PHP_EOL;
+    echo "  version         : Displays the current version of pfSense-pkg-saml2-auth".PHP_EOL;
+    echo "  help            : Displays the help page (this page)".PHP_EOL.PHP_EOL;
 }
 
 /**
@@ -174,6 +217,12 @@ function main(array $argv): void {
             break;
         case 'refreshcache':
             refreshcache();
+            break;
+        case 'setupschedule':
+            setupschedule();
+            break;
+        case 'removeschedule':
+            removeschedule();
             break;
         case 'update':
             update();

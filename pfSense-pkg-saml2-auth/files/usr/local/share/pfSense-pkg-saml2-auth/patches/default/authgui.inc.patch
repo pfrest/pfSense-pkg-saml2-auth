@@ -7,13 +7,13 @@
 +
 +                        <?php
 +                        # Added by pfSense-pkg-saml2-auth - Show SSO login link on login page
-+                        require_once("saml2_auth/SAML2Auth.inc");
-+                        $pkg_conf = Auth::get_package_config()[1];
++                        require_once("Saml2/autoload.php");
++                        $saml2_conf = new \Saml2\Config();
 +
 +                        # Only display the SSO login link if SAML2 auth is enabled
-+                        if ($pkg_conf["enable"] === "yes") {
++                        if ($saml2_conf->enable) {
 +                            echo '<link rel="stylesheet" href="/css/saml2_auth/saml2_auth.css" type="text/css">';
-+                            echo '<a id="saml2_login_button" href="/saml2_auth/sso/"><p>Login with SSO</p></a>';
++                            echo '<a id="saml2_login_button" href="/saml2_auth/sso/"><p>Sign In with SSO</p></a>';
 +                        }
 +                        ?>
 +

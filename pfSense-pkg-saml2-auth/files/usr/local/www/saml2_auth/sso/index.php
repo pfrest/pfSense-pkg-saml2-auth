@@ -21,4 +21,4 @@ use Saml2\Config;
 # Start SSO
 $auth = new Auth();
 $config = new Config();
-$auth->sso("$config->sp_base_url/saml2_auth/sso/redirect/");
+$auth->sso($config->sp_base_url.Auth::SSO_REDIRECT_URL);

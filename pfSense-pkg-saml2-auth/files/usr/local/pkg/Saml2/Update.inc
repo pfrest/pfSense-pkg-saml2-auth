@@ -21,7 +21,7 @@ use Saml2\Errors\SystemError;
 use Saml2\Errors\UpdateError;
 
 const RELEASES_FETCH_TIMEOUT = 10; // Timeout for fetching releases in seconds
-const RELEASES_CACHE_FILE = "/usr/local/share/pfSense-pkg-saml2-auth/releases.json";
+const RELEASES_CACHE_FILE = "/var/cache/pfSense-pkg-saml2-auth/releases.json";
 const RELEASES_URL = "https://api.github.com/repos/pfrest/pfSense-pkg-saml2-auth/releases";
 const PKG_STATIC_EXEC = "/usr/local/sbin/pkg-static";
 

@@ -25,7 +25,7 @@ use Saml2\Errors\ValidationError;
  */
 class Config
 {
-    const BACKUP_FILE_PATH = "/usr/local/pkg/saml2_auth/backup.json";
+    const BACKUP_FILE_PATH = "/var/cache/pfSense-pkg-saml2-auth/backup.json";
     const RESTORE_SUCCESS = 0;
     const RESTORE_FAILURE = 1;
     const RESTORE_NO_BACKUP = 2;
@@ -33,7 +33,8 @@ class Config
     public int $id;
     public bool $enable;
     public bool $strip_username;
-    public bool $debug_mode;
+    public bool $verbose_logging;
+    public string $idp_metadata_url;
     public string $idp_entity_id;
     public string $idp_sign_on_url;
     public string $idp_groups_attribute;
@@ -84,7 +85,8 @@ class Config
         return [
             "enable" => $this->to_internal_boolval($this->enable),
             "strip_username" => $this->to_internal_boolval($this->strip_username),
-            "debug_mode" => $this->to_internal_boolval($this->debug_mode),
+            "verbose_logging" => $this->to_internal_boolval($this->verbose_logging),
+            "idp_metadata_url" => $this->idp_metadata_url,
             "idp_entity_id" => $this->idp_entity_id,
             "idp_sign_on_url" => $this->idp_sign_on_url,
             "idp_groups_attribute" => $this->idp_groups_attribute,
@@ -108,11 +110,12 @@ class Config
         $this->id = $stored_config_data["id"];
         $this->enable = $this->from_internal_boolval($config_data["enable"]);
         $this->strip_username = $this->from_internal_boolval($config_data["strip_username"]);
-        $this->debug_mode = $this->from_internal_boolval($config_data["debug_mode"]);
+        $this->verbose_logging = $this->from_internal_boolval($config_data["verbose_logging"]);
+        $this->idp_metadata_url = $config_data["idp_metadata_url"] ?? "";
         $this->idp_entity_id = $config_data["idp_entity_id"] ?? "";
         $this->idp_sign_on_url = $config_data["idp_sign_on_url"] ?? "";
         $this->idp_groups_attribute = $config_data["idp_groups_attribute"] ?? "";
-        $this->idp_x509_cert = $config_data["idp_x509_cert"] ?? "";
+        $this->idp_x509_cert = base64_decode($config_data["idp_x509_cert"]) ?? "";
         $this->sp_base_url = $config_data["sp_base_url"] ?: $this->__get_default_sp_base_url();
         $this->custom_conf = base64_decode($config_data["custom_conf"] ?? "");
     }
@@ -151,15 +154,32 @@ class Config
     }
 
     /**
+     * Validates the idp_metadata_url property.
+     * @throws ValidationError If the idp_metadata_url is not a valid URL.
+     */
+    public function validate_idp_metadata_url(): void
+    {
+        if ($this->idp_metadata_url and !filter_var($this->idp_metadata_url, FILTER_VALIDATE_URL)) {
+            throw new ValidationError("IdP Metadata URL is not a valid URL.");
+        }
+    }
+
+    /**
      * Validates the idp_entity_idp property.
      * @throws ValidationError If the idp_entity_id is over 1024 characters long or contains invalid characters.
      */
     public function validate_idp_entity_id(): void {
-        if (strlen($this->idp_entity_id) > 1024) {
-            throw new ValidationError("IDP Entity ID must be less than 1024 characters long.");
+        # Do not require this field if an IdP metadata URL is configured
+        if (!$this->idp_entity_id and $this->idp_metadata_url) {
+            return;
         }
+        # Ensure the IdP Entity ID is not over 1024 characters long
+        if (strlen($this->idp_entity_id) > 1024) {
+            throw new ValidationError("IdP Entity ID must be less than 1024 characters long.");
+        }
+        # Ensure the IdP Entity ID only contains valid characters
         if (!preg_match('/^[a-zA-Z0-9\-._~:\/?#\[\]@!$&\'()*+,;=]+$/', $this->idp_entity_id)) {
-            throw new ValidationError("IDP Entity ID contains invalid characters.");
+            throw new ValidationError("IdP Entity ID contains invalid characters.");
         }
     }
 
@@ -169,8 +189,13 @@ class Config
      */
     public function validate_idp_sign_on_url(): void
     {
+        # Do not require this field if an IdP metadata URL is configured
+        if (!$this->idp_entity_id and $this->idp_metadata_url) {
+            return;
+        }
+        # Ensure the IdP Sign-On URL is a valid URL
         if (!filter_var($this->idp_sign_on_url, FILTER_VALIDATE_URL)) {
-            throw new ValidationError("IDP Sign-On URL is not a valid URL.");
+            throw new ValidationError("IdP Sign-On URL is not a valid URL.");
         }
     }
 
@@ -179,11 +204,16 @@ class Config
      * @throws ValidationError If the idp_x509_cert is not a valid X.509 certificate.
      */
     public function validate_idp_x509_cert(): void {
+        # Do not require this field if an IdP metadata URL is configured
+        if (!$this->idp_entity_id and $this->idp_metadata_url) {
+            return;
+        }
+        # Ensure the IdP x509 Certificate appears to be a valid x509 certificate
         if (
             !str_contains($this->idp_x509_cert, "-----BEGIN CERTIFICATE-----") or
             !str_contains($this->idp_x509_cert, "-----END CERTIFICATE-----")
         ) {
-            throw new ValidationError("IDP X.509 Certificate is not a valid X.509 certificate.");
+            throw new ValidationError("IdP X.509 Certificate is not a valid X.509 certificate.");
         }
     }
 
@@ -205,7 +235,7 @@ class Config
     {
         # Check if the custom_conf is a valid JSON string
         json_decode($this->custom_conf);
-        if (json_last_error() !== JSON_ERROR_NONE) {
+        if ($this->custom_conf and json_last_error() !== JSON_ERROR_NONE) {
             throw new ValidationError("Custom configuration is not a valid JSON string.");
         }
     }
@@ -216,6 +246,7 @@ class Config
      * @throws ValidationError If any of the configuration properties are invalid.
      */
     public function validate(): void {
+        $this->validate_idp_metadata_url();
         $this->validate_idp_entity_id();
         $this->validate_idp_sign_on_url();
         $this->validate_idp_x509_cert();
@@ -243,7 +274,8 @@ class Config
      */
     public function backup(): bool {
         # Save a JSON file containing the data
-        $backup_result = file_put_contents(self::BACKUP_FILE_PATH, json_encode($this->get_raw_config()));
+        $raw_config = $this->get_raw_config()["conf"];
+        $backup_result = file_put_contents(self::BACKUP_FILE_PATH, json_encode($raw_config));
         return $backup_result !== false;
     }
 
@@ -255,7 +287,7 @@ class Config
     public function restore(): int {
         # Save the backup configuration to the pfSense master configuration if found
         if (file_exists(self::BACKUP_FILE_PATH)) {
-            $backup_data = file_get_contents(self::BACKUP_FILE_PATH);
+            $backup_data = json_decode(file_get_contents(self::BACKUP_FILE_PATH), associative: true);
             $restore_result = config_set_path("installedpackages/package/$this->id/conf", $backup_data);
             write_config("Restored SAML2 configuration");
             return $restore_result ? self::RESTORE_SUCCESS : self::RESTORE_FAILURE;

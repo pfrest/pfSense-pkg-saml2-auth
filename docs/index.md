@@ -7,7 +7,7 @@ enterprise-level authentication for pfSense CE admins.
 ## Key Features
 
 - Supports most SAML2 Identity Providers (IdPs)
-- Integrates seamlessly with pfSense CE's authentication system
+- Integrates seamlessly with the pfSense authentication system
 - Allows privilege inheritance from either pfSense user groups or pfSense local users
 - Works with either Identity Provider or Service Provider initiated SSO
 
@@ -18,8 +18,8 @@ enterprise-level authentication for pfSense CE admins.
 ## Source Code & Contributions
 
 The source code for this project is available in its entirety on [GitHub](https://github.com/pfrest/pfSense-pkg-saml2-auth)
-and is licensed under an [Apache 2.0 license](https://github.com/pfrest/pfSense-pkg-saml2-auth/blob/master/LICENSE).
-Contributions are welcome and encouraged.
+and is licensed under an [Apache 2.0 license](https://github.com/pfrest/pfSense-pkg-saml2-auth/blob/master/LICENSE). Contributions are welcome and encouraged.
+Please see the [CONTRIBUTING](CONTRIBUTING.md) guide for more information on how to contribute.
 
 ### Maintainers
 
@@ -35,4 +35,3 @@ Contributions are welcome and encouraged.
 !!! Caution
     - This package is not affiliated or supported by Netgate or the pfSense team; it is developed and maintained
     by the community.
-    - This package is not supported on pfSense Plus. Installing on pfSense Plus may result in unexpected behavior.

@@ -29,15 +29,17 @@ display_top_tabs($tab_array, true);    # Ensures the tabs are written to the top
 
 # Variables
 $form = new Form(false);
-$config = new Config();
+$conf = new Config();
 $input_errors = [];
 
 # On save, attempt to validate and save the posted configuration
 if ($_POST["save"]) {
     # Load the requested data into a Config object and validate it
-    $config->from_internal($_POST);
+    $_POST['idp_x509_cert'] = base64_encode($_POST['idp_x509_cert']);
+    $_POST['custom_conf'] = base64_encode($_POST['custom_conf']);
+    $conf->from_internal($_POST);
     try {
-        $config->save();
+        $conf->save();
         print_apply_result_box(0);
     } catch (Error $e) {
         $input_errors[] = $e->getMessage();
@@ -51,36 +53,48 @@ $general_section->addInput(new Form_Checkbox(
     'enable',
     'Enable',
     '',
-    Config::to_internal_boolval($config->enable)
+    Config::to_internal_boolval($conf->enable)
 ))->setHelp("Enable SAML2 authentication for the pfSense webConfigurator.");
 
 $general_section->addInput(new Form_Checkbox(
     'strip_username',
     'Filter Email Usernames',
     '',
-    Config::to_internal_boolval($config->strip_username)
+    Config::to_internal_boolval($conf->strip_username)
 ))->setHelp(
     "Enable removal of any characters after the @ character on email usernames. This is required if you intend to use SAML
     authentication that maps to an existing local user and your IdP returns email addresses as the username by default."
 );
 
 $general_section->addInput(new Form_Checkbox(
-    'debug_mode',
-    'Debug',
+    'verbose_logging',
+    'Verbose Logging',
     '',
-    Config::to_internal_boolval($config->debug_mode)
+    Config::to_internal_boolval($conf->verbose_logging)
 ))->setHelp(
-    "Enable debug mode for SAML2 logins. This will provide verbose errors when encountering SAML2 authentication errors.
-    Do not leave debug mode enabled in a production environment!"
+    'Enable verbose logging for SAML2 events. This will include more detailed information in the '.
+    '<a href="https://192.168.55.72/status_logs_packages.php?pkg=SAML2">SAML2 log file</a> that may be useful for '.
+    'debugging purposes.'
 );
 
 # POPULATE THE IDP SECTION OF THE UI
 $idp_section = new Form_Section('Identity Provider Settings (IdP)');
 $idp_section->addInput(new Form_Input(
+    'idp_metadata_url',
+    'Identity Provider Metadata URL',
+    'text',
+    $conf->idp_metadata_url,
+    ['placeholder' => 'URL']
+))->setHelp(
+    'Set the metadata URL of the upstream identity provider (if available). If set, the IdP configuration will be '.
+    'automatically fetched from your IdP and the fields below may be ignored. This will be provided by your IdP. '.
+    'Please note that any settings provided in the custom configuration field below may override these settings.'
+);
+$idp_section->addInput(new Form_Input(
     'idp_entity_id',
     'Identity Provider Entity ID',
     'text',
-    $config->idp_entity_id,
+    $conf->idp_entity_id,
     ['placeholder' => 'URL or alternate ID']
 ))->setHelp('Set the entity ID of the upstream identity provider. This will be provided by your IdP.');
 
@@ -88,7 +102,7 @@ $idp_section->addInput(new Form_Input(
     'idp_sign_on_url',
     'Identity Provider Sign-on URL',
     'text',
-    $config->idp_sign_on_url,
+    $conf->idp_sign_on_url,
     ['placeholder' => 'URL']
 ))->setHelp('Set the sign-on URL of the upstream identity provider. This will be provided by your IdP.');
 
@@ -96,14 +110,14 @@ $idp_section->addInput(new Form_Input(
     'idp_groups_attribute',
     'Identity Provider Groups Attribute',
     'text',
-    $config->idp_groups_attribute,
+    $conf->idp_groups_attribute,
     ['placeholder' => 'Group attribute name']
 ))->setHelp('Set the groups attribute returned in the SAML assertion. This will be provided by your IdP if supported.');
 
 $idp_section->addInput(new Form_Textarea(
     'idp_x509_cert',
     'Identity Provider x509 Certificate',
-    $config->idp_x509_cert,
+    $conf->idp_x509_cert,
 ))->setHelp(
     'Paste the x509 certificate data from the upstream identity provider. In most cases, this will be provided
     by your IdP.'
@@ -115,7 +129,7 @@ $sp_section->addInput(new Form_Input(
     'sp_base_url',
     'Service Provider Base URL',
     'text',
-    $config->sp_base_url,
+    $conf->sp_base_url,
     ['placeholder' => 'URL']
 ))->setHelp(
     "Set the base URL of the service provider (pfSense). This must be the URL that is used to access pfSense's
@@ -124,12 +138,12 @@ $sp_section->addInput(new Form_Input(
 
 $sp_section->addInput(new Form_StaticText(
     'Service Provider Entity ID',
-    "$config->sp_base_url/saml2_auth/sso/metadata/"
+    "$conf->sp_base_url/saml2_auth/sso/metadata/"
 ))->setHelp("Displays the service provider's entity ID. This is the entity ID you will need to provide to your IdP.");
 
 $sp_section->addInput(new Form_StaticText(
     'Service Provider Sign-on URL',
-    "$config->sp_base_url/saml2_auth/sso/acs/"
+    "$conf->sp_base_url/saml2_auth/sso/acs/"
 ))->setHelp(
     "Displays the service provider's sign-on URL. This is the URL you will need to provide to your IdP. They may refer
     to this URL as the assertion consumer service (ACS)."
@@ -140,7 +154,7 @@ $advanced_section = new Form_Section('Advanced Settings');
 $advanced_section->addInput(new Form_Textarea(
     'custom_conf',
     'Custom SAML2 configuration',
-    $config->custom_conf
+    $conf->custom_conf
 ))->setHelp(
     'Adds custom configuration for SAML2 logins. This allows you to add custom php-saml settings in JSON format for the
     <a href="https://github.com/onelogin/php-saml" target="_blank">OneLogin PHP-SAML</a> library to use. This option is

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <pfsensepkgs>
     <package>
-        <name>SAML2 Authentication</name>
+        <name>SAML2</name>
         <internal_name>saml2-auth</internal_name>
         <descr><![CDATA[A SAML2 authentication extension for the pfSense UI]]></descr>
         <website>https://github.com/pfrest/pfSense-pkg-saml2-auth</website>
@@ -12,7 +12,7 @@
         <conf>
             <enable></enable>
             <strip_username>yes</strip_username>
-            <debug_mode></debug_mode>
+            <verbose_logging></verbose_logging>
             <idp_entity_id></idp_entity_id>
             <idp_sign_on_url></idp_sign_on_url>
             <idp_groups_attribute></idp_groups_attribute>
@@ -20,5 +20,10 @@
             <sp_base_url></sp_base_url>
             <custom_conf></custom_conf>
         </conf>
+        <logging>
+            <logtab>SAML2</logtab>
+            <facilityname>saml2</facilityname>
+            <logfilename>saml2.log</logfilename>
+        </logging>
     </package>
 </pfsensepkgs>
