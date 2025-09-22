@@ -159,6 +159,13 @@ function update(): void {
  * Reverts the pfSense-pkg-saml2-auth package to the specified version
  */
 function revert(string $version): void {
+    # Ensure version is specified
+    if (!$version) {
+        echo "error: no version specified to revert to.".PHP_EOL;
+        help();
+        exit(1);
+    }
+
     echo "Reverting package to $version... ";
 
     # Try to revert the package, print an error message if it fails and exit with a non-zero code
@@ -192,15 +199,15 @@ function help(): void {
     echo "SYNTAX:".PHP_EOL;
     echo "  pfsense-saml2 <command> <args>".PHP_EOL;
     echo "COMMANDS:".PHP_EOL;
-    echo "  backup          : Makes a backup of the SAML2 configuration".PHP_EOL;
-    echo "  restore         : Restores the SAML2 configuration from the JSON backup".PHP_EOL;
-    echo "  refreshcache    : Refreshes the releases cache files used for updates".PHP_EOL;
-    echo "  setupschedule   : Sets up cron schedules for the package".PHP_EOL;
-    echo "  removeschedule  : Removes cron schedules for the package".PHP_EOL;
-    echo "  update          : Update to the latest version of the package".PHP_EOL;
-    echo "  revert          : Revert to a specific version of the package".PHP_EOL;
-    echo "  version         : Displays the current version of pfSense-pkg-saml2-auth".PHP_EOL;
-    echo "  help            : Displays the help page (this page)".PHP_EOL.PHP_EOL;
+    echo "  backup            : Makes a backup of the SAML2 configuration".PHP_EOL;
+    echo "  restore           : Restores the SAML2 configuration from the JSON backup".PHP_EOL;
+    echo "  refreshcache      : Refreshes the releases cache files used for updates".PHP_EOL;
+    echo "  setupschedule     : Sets up cron schedules for the package".PHP_EOL;
+    echo "  removeschedule    : Removes cron schedules for the package".PHP_EOL;
+    echo "  update            : Update to the latest version of the package".PHP_EOL;
+    echo "  revert <version>  : Revert to a specific version of the package".PHP_EOL;
+    echo "  version           : Displays the current version of pfSense-pkg-saml2-auth".PHP_EOL;
+    echo "  help              : Displays the help page (this page)".PHP_EOL.PHP_EOL;
 }
 
 /**
@@ -237,7 +244,7 @@ function main(array $argv): void {
             help();
             exit(0);
         default:
-            echo "Unknown command: '$argv[1]'".PHP_EOL;
+            echo "error: unknown command: '$argv[1]'".PHP_EOL;
             help();
             exit(1);
     }
