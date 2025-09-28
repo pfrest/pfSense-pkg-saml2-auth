@@ -86,7 +86,6 @@ class Auth {
         $this->__check_saml2_state();
         unset($_SESSION['saml2_started']);
 
-
         # Attempt to process the SAML response
         try {
             $this->auth->processResponse($_SESSION['AuthNRequestID']);
