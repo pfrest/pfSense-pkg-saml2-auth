@@ -20,14 +20,12 @@ use Error;
 /**
  * Defines a custom error class for update errors in the SAML2 authentication package.
  */
-class UpdateError extends Error
-{
+class UpdateError extends Error {
     /**
      * UpdateError constructor.
      * @param string $message The error message to display.
      */
-    public function __construct(string $message)
-    {
+    public function __construct(string $message) {
         parent::__construct($message);
     }
 }

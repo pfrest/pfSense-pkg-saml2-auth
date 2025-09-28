@@ -14,7 +14,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-require_once("Saml2/autoload.php");
+require_once 'Saml2/autoload.php';
 
 use Saml2\Core\Config;
 use Saml2\Errors\UpdateError;
@@ -30,18 +30,18 @@ const REFRESH_CACHE_CMD = '/usr/local/pkg/Saml2/manage.php refreshcache';
  */
 function backup(): void {
     # Start the backup process
-    echo "Backing up SAML2 configuration... ";
+    echo 'Backing up SAML2 configuration... ';
     $config = new Config();
     $backup_success = $config->backup();
 
     # Exit on non-zero exit code if the backup fails
     if (!$backup_success) {
-        echo "failed.".PHP_EOL;
+        echo 'failed.' . PHP_EOL;
         exit(1);
     }
 
     # Otherwise, backup was successful. Print success message.
-    echo "done.".PHP_EOL;
+    echo 'done.' . PHP_EOL;
     exit(0);
 }
 
@@ -50,22 +50,22 @@ function backup(): void {
  */
 function restore(): void {
     # Start the restore process
-    echo "Restoring SAML2 configuration... ";
+    echo 'Restoring SAML2 configuration... ';
     $config = new Config();
     $restore_status = $config->restore();
 
-    switch($restore_status) {
+    switch ($restore_status) {
         case Config::RESTORE_SUCCESS:
-            echo "done.".PHP_EOL;
+            echo 'done.' . PHP_EOL;
             exit(0);
         case Config::RESTORE_NO_BACKUP:
-            echo "nothing to restore.".PHP_EOL;
+            echo 'nothing to restore.' . PHP_EOL;
             exit(0);
         case Config::RESTORE_FAILURE:
-            echo "failed.".PHP_EOL;
+            echo 'failed.' . PHP_EOL;
             exit(1);
         default:
-            echo "unknown error.".PHP_EOL;
+            echo 'unknown error.' . PHP_EOL;
             exit(1);
     }
 }
@@ -75,24 +75,23 @@ function restore(): void {
  */
 function refreshcache(): void {
     # Start the cache refresh process
-    echo "Refreshing package cache files... ";
+    echo 'Refreshing package cache files... ';
     try {
         $cache = fetch_pkg_releases();
-    }
-    catch (Error $e) {
-        echo "failed: ".$e->getMessage().PHP_EOL;
+    } catch (Error $e) {
+        echo 'failed: ' . $e->getMessage() . PHP_EOL;
         exit(1);
     }
 
     # If no releases were fetched, print an error message
     if (empty($cache)) {
-        echo "failed to fetch releases to cache.".PHP_EOL;
+        echo 'failed to fetch releases to cache.' . PHP_EOL;
         exit(1);
     }
 
     # Otherwise, write the cache to the file
     file_put_contents(RELEASES_CACHE_FILE, json_encode($cache));
-    echo "done.".PHP_EOL;
+    echo 'done.' . PHP_EOL;
     exit(0);
 }
 
@@ -101,37 +100,36 @@ function refreshcache(): void {
  */
 function setupschedule(): void {
     # Setup the cron job to run hourly
-    echo "Setting up cron schedules... ";
-    $cron_job = ["minute" => "@hourly", "who" => "root", "command" => REFRESH_CACHE_CMD];
-    $cron_jobs = config_get_path("cron/item", []);
+    echo 'Setting up cron schedules... ';
+    $cron_job = ['minute' => '@hourly', 'who' => 'root', 'command' => REFRESH_CACHE_CMD];
+    $cron_jobs = config_get_path('cron/item', []);
     $cron_jobs[] = $cron_job;
-    config_set_path("cron/item", $cron_jobs);
-    write_config("Created cron job for pfSense-pkg-saml2-auth package");
+    config_set_path('cron/item', $cron_jobs);
+    write_config('Created cron job for pfSense-pkg-saml2-auth package');
     configure_cron();
 
-    echo "done.".PHP_EOL;
+    echo 'done.' . PHP_EOL;
     exit(0);
 }
 
 /**
  * Removes cron schedules for the package
  */
-function removeschedule(): void
-{
-    echo "Removing cron schedules... ";
+function removeschedule(): void {
+    echo 'Removing cron schedules... ';
 
     # Remove any existing cron jobs for this command
-    foreach (config_get_path("cron/item", []) as $index => $cron) {
+    foreach (config_get_path('cron/item', []) as $index => $cron) {
         if ($cron['command'] === REFRESH_CACHE_CMD) {
             config_del_path("cron/item/$index");
-            write_config("Removed cron job for pfSense-pkg-saml2-auth package");
+            write_config('Removed cron job for pfSense-pkg-saml2-auth package');
             break;
         }
     }
 
     # Apply the changes to cron
     configure_cron();
-    echo "done.".PHP_EOL;
+    echo 'done.' . PHP_EOL;
     exit(0);
 }
 
@@ -139,19 +137,18 @@ function removeschedule(): void
  * Updates the pfSense-pkg-saml2-auth package to the latest version
  */
 function update(): void {
-    echo "Updating package to latest version... ";
+    echo 'Updating package to latest version... ';
 
     # Try to update the package, print an error message if it fails and exit with a non-zero code
     try {
         update_pkg();
-    }
-    catch (UpdateError $e) {
-        echo "failed: ".$e->getMessage().PHP_EOL;
+    } catch (UpdateError $e) {
+        echo 'failed: ' . $e->getMessage() . PHP_EOL;
         exit(1);
     }
 
     # Otherwise, print a success message
-    echo "done.".PHP_EOL;
+    echo 'done.' . PHP_EOL;
     exit(0);
 }
 
@@ -161,7 +158,7 @@ function update(): void {
 function revert(string $version): void {
     # Ensure version is specified
     if (!$version) {
-        echo "error: no version specified to revert to.".PHP_EOL;
+        echo 'error: no version specified to revert to.' . PHP_EOL;
         help();
         exit(1);
     }
@@ -171,14 +168,13 @@ function revert(string $version): void {
     # Try to revert the package, print an error message if it fails and exit with a non-zero code
     try {
         update_pkg($version);
-    }
-    catch (UpdateError $e) {
-        echo "failed: ".$e->getMessage().PHP_EOL;
+    } catch (UpdateError $e) {
+        echo 'failed: ' . $e->getMessage() . PHP_EOL;
         exit(1);
     }
 
     # Otherwise, print a success message
-    echo "done.".PHP_EOL;
+    echo 'done.' . PHP_EOL;
     exit(0);
 }
 
@@ -263,7 +259,7 @@ function run_tests(string|null $contains = ''): void {
  * Prints the installed version of the pfSense-pkg-saml2-auth package
  */
 function version(): void {
-    echo "pfSense-pkg-saml2-auth ". get_pkg_version().PHP_EOL;
+    echo 'pfSense-pkg-saml2-auth ' . get_pkg_version() . PHP_EOL;
     exit(0);
 }
 
@@ -271,21 +267,21 @@ function version(): void {
  * Displays the help page for the CLI tool
  */
 function help(): void {
-    echo "pfsense-saml2 - CLI tool for pfSense-pkg-saml2-auth package management".PHP_EOL;
-    echo "Copyright - ".date("Y")."© - Jared Hendrickson".PHP_EOL;
-    echo "SYNTAX:".PHP_EOL;
-    echo "  pfsense-saml2 <command> <args>".PHP_EOL;
-    echo "COMMANDS:".PHP_EOL;
-    echo "  backup              : Makes a backup of the SAML2 configuration".PHP_EOL;
-    echo "  restore             : Restores the SAML2 configuration from the JSON backup".PHP_EOL;
-    echo "  refreshcache        : Refreshes the releases cache files used for updates".PHP_EOL;
-    echo "  setupschedule       : Sets up cron schedules for the package".PHP_EOL;
-    echo "  removeschedule      : Removes cron schedules for the package".PHP_EOL;
-    echo "  update              : Update to the latest version of the package".PHP_EOL;
-    echo "  revert <version>    : Revert to a specific version of the package".PHP_EOL;
-    echo "  runtests [<filter>] : Runs all test cases, or only those that contain <filter> in the test name".PHP_EOL;
-    echo "  version             : Displays the current version of pfSense-pkg-saml2-auth".PHP_EOL;
-    echo "  help                : Displays the help page (this page)".PHP_EOL.PHP_EOL;
+    echo 'pfsense-saml2 - CLI tool for pfSense-pkg-saml2-auth package management' . PHP_EOL;
+    echo 'Copyright - ' . date('Y') . '© - Jared Hendrickson' . PHP_EOL;
+    echo 'SYNTAX:' . PHP_EOL;
+    echo '  pfsense-saml2 <command> <args>' . PHP_EOL;
+    echo 'COMMANDS:' . PHP_EOL;
+    echo '  backup              : Makes a backup of the SAML2 configuration' . PHP_EOL;
+    echo '  restore             : Restores the SAML2 configuration from the JSON backup' . PHP_EOL;
+    echo '  refreshcache        : Refreshes the releases cache files used for updates' . PHP_EOL;
+    echo '  setupschedule       : Sets up cron schedules for the package' . PHP_EOL;
+    echo '  removeschedule      : Removes cron schedules for the package' . PHP_EOL;
+    echo '  update              : Update to the latest version of the package' . PHP_EOL;
+    echo '  revert <version>    : Revert to a specific version of the package' . PHP_EOL;
+    echo '  runtests [<filter>] : Runs all test cases, or only those that contain <filter> in the test name' . PHP_EOL;
+    echo '  version             : Displays the current version of pfSense-pkg-saml2-auth' . PHP_EOL;
+    echo '  help                : Displays the help page (this page)' . PHP_EOL . PHP_EOL;
 }
 
 /**
@@ -325,10 +321,11 @@ function main(array $argv): void {
             help();
             exit(0);
         default:
-            echo "error: unknown command: '$argv[1]'".PHP_EOL;
+            echo "error: unknown command: '$argv[1]'" . PHP_EOL;
             help();
             exit(1);
     }
 }
 
 main($argv);
+

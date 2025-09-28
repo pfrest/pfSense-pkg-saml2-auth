@@ -13,8 +13,8 @@
 //   limitations under the License.
 
 function sso_redirect() {
-    // Find our anchor tag and simulate a click using JavaScript
-    let redirect = document.getElementById("saml2_redirect_no_referrer");
-    redirect.href = "/";
-    redirect.click();
+  // Find our anchor tag and simulate a click using JavaScript
+  let redirect = document.getElementById("saml2_redirect_no_referrer");
+  redirect.href = "/";
+  redirect.click();
 }

@@ -1,10 +1,9 @@
 ---
 name: Bug Report
 about: Report a bug or problem
-title: ''
-labels: ''
-assignees: ''
-
+title: ""
+labels: ""
+assignees: ""
 ---
 
 **Describe the bug**
@@ -12,6 +11,7 @@ A clear and concise description of what the bug is. Please note, IdP implementat
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
@@ -24,13 +24,15 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **pfSense Version & Package Version:**
- - pfSense Version: [e.g. pfSense 2.5.1]
- - Package Version [e.g. v1.1.0]
+
+- pfSense Version: [e.g. pfSense 2.5.1]
+- Package Version [e.g. v1.1.0]
 
 **Identity Provider Information:**
- - IdP Name: [e.g. Okta, OneLogin, Google]
- - IdP Type: [e.g. internal, cloud, SaaS]
- - IdP Website: [e.g. www.okta.com]
+
+- IdP Name: [e.g. Okta, OneLogin, Google]
+- IdP Type: [e.g. internal, cloud, SaaS]
+- IdP Website: [e.g. www.okta.com]
 
 **Additional context**
 Add any other context about the problem here.

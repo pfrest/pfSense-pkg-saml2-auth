@@ -20,14 +20,12 @@ use Error;
 /**
  * Defines a custom error class for validation errors in the SAML2 authentication package.
  */
-class ValidationError extends Error
-{
+class ValidationError extends Error {
     /**
      * ConfigError.inc constructor.
      * @param string $message The error message to display.
      */
-    public function __construct(string $message)
-    {
+    public function __construct(string $message) {
         parent::__construct($message);
     }
 }

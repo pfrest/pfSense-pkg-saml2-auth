@@ -13,7 +13,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-require_once("Saml2/autoload.php");
+require_once 'Saml2/autoload.php';
 
 use Saml2\Core\Auth;
 use Saml2\Core\Config;
@@ -21,4 +21,4 @@ use Saml2\Core\Config;
 # Start SSO
 $auth = new Auth();
 $config = new Config();
-$auth->sso($config->sp_base_url.Auth::SSO_REDIRECT_URL);
+$auth->sso($config->sp_base_url . Auth::SSO_REDIRECT_URL);
