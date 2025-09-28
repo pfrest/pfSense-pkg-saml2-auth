@@ -4,15 +4,18 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - 'master'
+      - "master"
+
+# Ensure only one build job runs at a time
+concurrency: build
 
 # Commit SHAs may differ when trigger via pull request vs workflow_dispatch, ensure the correct commit is referenced.
 env:
-  commit_id: "${{ github.event.pull_request.head.sha || github.sha }}"
-  build_version: "0.0_0dev_${{ github.event.pull_request.head.sha || github.sha }}"
+  COMMIT_ID: "${{ github.event.pull_request.head.sha || github.sha }}"
+  BUILD_VERSION: "0.0_0-dev-${{ github.event.pull_request.head.sha || github.sha }}"
 
 jobs:
-  build:
+  build_pkg:
     runs-on: self-hosted
 
     strategy:
@@ -34,8 +37,8 @@ jobs:
 
       - name: Build pfSense-pkg-saml2-auth on FreeBSD
         run: |
-          /usr/bin/ssh -o StrictHostKeyChecking=no ${{ matrix.FREEBSD_VERSION }}.jaredhendrickson.com 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
-          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.FREEBSD_VERSION }}.jaredhendrickson.com --branch ${{ env.commit_id }} --tag ${{ env.build_version }}_${{ matrix.FREEBSD_ID }}
+          /usr/bin/ssh -o StrictHostKeyChecking=no -o LogLevel=quiet ${{ matrix.FREEBSD_VERSION }}.jaredhendrickson.com 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
+          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.FREEBSD_VERSION }}.jaredhendrickson.com --branch ${{ env.COMMIT_ID }} --tag ${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}
 
       - name: Teardown FreeBSD build VM
         if: "${{ always() }}"
@@ -45,5 +48,62 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: pfSense-pkg-saml2-auth-${{ env.build_version }}_${{ matrix.FREEBSD_ID }}.pkg
-          path: pfSense-pkg-saml2-auth-${{ env.build_version }}_${{ matrix.FREEBSD_ID }}.pkg
+          name: pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg
+          path: pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg
+
+  check_tests:
+    runs-on: self-hosted
+    needs: [build_pkg]
+
+    strategy:
+      matrix:
+        include:
+          - PFSENSE_VERSION: pfSense-2.7.0-RELEASE
+            FREEBSD_ID: freebsd14
+          - PFSENSE_VERSION: pfSense-2.7.1-RELEASE
+            FREEBSD_ID: freebsd14
+          - PFSENSE_VERSION: pfSense-2.7.2-RELEASE
+            FREEBSD_ID: freebsd14
+          - PFSENSE_VERSION: pfSense-2.8.0-RELEASE
+            FREEBSD_ID: freebsd15
+          - PFSENSE_VERSION: pfSense-2.8.1-RELEASE
+            FREEBSD_ID: freebsd15
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v5
+        with:
+          name: pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg
+          path: pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg
+
+      - name: Setup pfSense VM
+        run: |
+          /usr/local/bin/VBoxManage controlvm ${{ matrix.PFSENSE_VERSION }} poweroff || true
+          /usr/local/bin/VBoxManage snapshot ${{ matrix.PFSENSE_VERSION }} restore initial
+          /usr/local/bin/VBoxManage startvm ${{ matrix.PFSENSE_VERSION }} --type headless
+          sleep 5
+
+      # This is only necessary until GitHub Actions allows an easier way to get a URL to download the artifact within pfSense
+      - name: Copy pfSense-pkg-saml2-auth build to pfSense
+        run: |
+          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com -u admin -p pfsense -c 'pfSsh.php playback enablesshd' -k
+          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com -u admin -p pfsense -c "mkdir /root/.ssh/ && echo $(cat ~/.ssh/id_rsa.pub) > /root/.ssh/authorized_keys" -k
+          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com -u admin -p pfsense -c "pkill ntpd" -k
+          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com -u admin -p pfsense -c "ntpdate pool.ntp.org" -k
+          scp -o StrictHostKeyChecking=no pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg admin@${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com:/tmp/
+
+      - name: Install pfSense-pkg-saml2-auth on pfSense
+        run: |
+          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com "pkg -C /dev/null add /tmp/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg"
+          sleep 5
+
+      - name: Run pfSense-pkg-saml2-auth tests
+        run: |
+          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com 'pfsense-saml2 runtests'
+
+      - name: Teardown pfSense VM
+        if: "${{ always() }}"
+        run: |
+          /usr/local/bin/VBoxManage controlvm ${{ matrix.PFSENSE_VERSION }} poweroff || true
+          /usr/local/bin/VBoxManage snapshot ${{ matrix.PFSENSE_VERSION }} restore initial
