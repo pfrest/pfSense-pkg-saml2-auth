@@ -13,7 +13,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-namespace Saml2;
+namespace Saml2\Core;
 
 require_once('Saml2/autoload.php');
 

@@ -13,7 +13,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-use Saml2\Auth;
+use Saml2\Core\Auth;
 
 require_once("Saml2/autoload.php");
 session_start();

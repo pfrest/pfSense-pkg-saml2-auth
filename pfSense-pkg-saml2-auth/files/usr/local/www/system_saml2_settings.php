@@ -16,7 +16,7 @@
 require_once("guiconfig.inc");
 require_once("Saml2/autoload.php");;
 
-use Saml2\Config;
+use Saml2\Core\Config;
 
 # Initialize the pfSense UI page (note: $pgtitle must be defined before including head.inc)
 $pgtitle = array(gettext("System"), gettext("SAML2"), gettext("Settings"));

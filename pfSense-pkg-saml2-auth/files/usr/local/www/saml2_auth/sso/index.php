@@ -15,8 +15,8 @@
 
 require_once("Saml2/autoload.php");
 
-use Saml2\Auth;
-use Saml2\Config;
+use Saml2\Core\Auth;
+use Saml2\Core\Config;
 
 # Start SSO
 $auth = new Auth();

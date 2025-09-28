@@ -15,7 +15,7 @@
 
 require_once("Saml2/autoload.php");
 
-use Saml2\Auth;
+use Saml2\Core\Auth;
 
 session_start();
 

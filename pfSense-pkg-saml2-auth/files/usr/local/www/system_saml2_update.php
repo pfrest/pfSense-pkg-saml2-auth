@@ -16,12 +16,12 @@
 require_once("guiconfig.inc");
 require_once("Saml2/autoload.php");;
 
-use function Saml2\Update\get_latest_pkg_release_date;
-use function Saml2\Update\get_latest_pkg_version;
-use function Saml2\Update\get_pfsense_version;
-use function Saml2\Update\get_pkg_version;
-use function Saml2\Update\get_supported_pkg_releases;
-use function Saml2\Update\is_update_available;
+use function Saml2\Core\Update\get_latest_pkg_release_date;
+use function Saml2\Core\Update\get_latest_pkg_version;
+use function Saml2\Core\Update\get_pfsense_version;
+use function Saml2\Core\Update\get_pkg_version;
+use function Saml2\Core\Update\get_supported_pkg_releases;
+use function Saml2\Core\Update\is_update_available;
 
 # Initialize the pfSense UI page (note: $pgtitle must be defined before including head.inc)
 $pgtitle = array(gettext('System'), gettext('SAML2'), gettext('Update'));

@@ -13,7 +13,7 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-namespace Saml2;
+namespace Saml2\Core;
 
 require_once('Saml2/autoload.php');
 
@@ -58,15 +58,8 @@ class Config
      * @return array Returns an array containing the package ID and its configuration data.
      */
     public function get_raw_config(): array {
-        // Get the data from pfSense, which could be a reference or an iterator object.
-        $package_data = config_get_path("installedpackages/package", []);
-
-        // **THE FIX**: Force the data into a new, clean array.
-        // This creates a true copy with its own pointer, making our function
-        // immune to any prior iterations, solving the issue permanently.
-        $packages = is_array($package_data) ? $package_data : iterator_to_array($package_data);
-
-        // Now, loop over our safe, local copy.
+        # Check each installed package for the pfSense-pkg-saml2-auth package's config
+        $packages = config_get_path("installedpackages/package", []);
         foreach ($packages as $id => $pkg) {
             if (is_array($pkg) && isset($pkg["internal_name"]) && $pkg["internal_name"] === "saml2-auth") {
                 return ["id" => $id, "conf" => $pkg["conf"]];
@@ -116,7 +109,7 @@ class Config
         $this->idp_sign_on_url = $config_data["idp_sign_on_url"] ?? "";
         $this->idp_groups_attribute = $config_data["idp_groups_attribute"] ?? "";
         $this->idp_x509_cert = base64_decode($config_data["idp_x509_cert"]) ?? "";
-        $this->sp_base_url = $config_data["sp_base_url"] ?: $this->__get_default_sp_base_url();
+        $this->sp_base_url = $config_data["sp_base_url"] ?: $this->get_default_sp_base_url();
         $this->custom_conf = base64_decode($config_data["custom_conf"] ?? "");
     }
 
@@ -144,10 +137,10 @@ class Config
      * Obtains a default sp_base_url using the pfSense system configuration
      * @return string Returns the default SP base URL for the SAML2 authentication package.
      */
-    private function __get_default_sp_base_url(): string {
-        $protocol = config_get_path("system/webgui/protocol");
-        $hostname = config_get_path("system/hostname");
-        $domain = config_get_path("system/domain");
+    public static function get_default_sp_base_url(): string {
+        $protocol = config_get_path("system/webgui/protocol", "https");
+        $hostname = config_get_path("system/hostname", "pfsense");
+        $domain = config_get_path("system/domain", "home.arpa");
         $port = config_get_path("system/webgui/port", "");
         $fqdn = "$hostname.$domain";
         return $port ? "$protocol://$fqdn:$port" : "$protocol://$fqdn";

@@ -6,8 +6,8 @@
  
 +        # Added by pfSense-pkg-saml2-auth - set SAML2 user's group assignments as specified by the SAML2 assertion
 +        if ($_SESSION["authsource"] === "SAML2") {
-+            require_once("Saml2/Config.inc");
-+            $saml2_conf = new \Saml2\Config();
++            require_once("Saml2/Core/Config.inc");
++            $saml2_conf = new \Saml2\Core\Config();
 +            $allowed_groups = $_SESSION["saml2_user_data"][$saml2_conf->idp_groups_attribute];
  	}
 +
