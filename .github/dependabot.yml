@@ -10,12 +10,21 @@ updates:
     target-branch: "master"
     schedule:
       interval: "monthly"
+
   - package-ecosystem: "pip"
     directory: "/"
     target-branch: "master"
     schedule:
       interval: "monthly"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
+
+  - package-ecosystem: "npm"
+    directory: "/"
+    target-branch: "master"
+    schedule:
+      interval: "monthly"
+
