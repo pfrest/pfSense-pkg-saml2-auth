@@ -130,7 +130,9 @@ class MakePackage:
     def build_on_remote_host(self):
         """Runs the build on a remote host using SSH."""
         # Automate the process to pull, install dependencies, build and retrieve the package on a remote host
-        includes_dir = f"~/build/{REPO_NAME}/{PKG_NAME}/files/usr/local/pkg/Saml2/Vendor/"
+        includes_dir = (
+            f"~/build/{REPO_NAME}/{PKG_NAME}/files/usr/local/pkg/Saml2/Vendor/"
+        )
         notests = "--notests" if self.args.notests else ""
         build_cmds = [
             "mkdir -p ~/build/",
