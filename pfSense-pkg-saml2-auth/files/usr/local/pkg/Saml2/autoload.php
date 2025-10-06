@@ -5,6 +5,7 @@ require_once 'Saml2/Vendor/autoload.php';
 
 # Include pfSense libraries
 require_once 'config.inc';
+require_once 'auth.inc';
 
 # Include SAML2 package libraries
 require_once 'Saml2/Core/Config.inc';

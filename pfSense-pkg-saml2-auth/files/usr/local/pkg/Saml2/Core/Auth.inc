@@ -212,7 +212,10 @@ class Auth {
         # When an IdP metadata URL is configured, allow the IdP metadata to override the current IdP settings
         if ($this->config->idp_metadata_url) {
             try {
-                $idp_metadata = IdPMetadataParser::parseRemoteXML($this->config->idp_metadata_url);
+                $idp_metadata = IdPMetadataParser::parseRemoteXML(
+                    $this->config->idp_metadata_url,
+                    validatePeer: $this->config->idp_verify_cert
+                );
                 $php_saml_config = array_replace_recursive($php_saml_config, $idp_metadata);
                 $this->log(
                     level: LOG_DEBUG,

@@ -12,8 +12,8 @@ enterprise-level authentication for pfSense CE admins.
 - Works with either Identity Provider or Service Provider initiated SSO
 
 !!! Important
-SSO is only available for the pfSense webConfigurator. It does not support SSO for other authentication areas
-such as SSH, VPN, or other services.
+    SSO is only available for the pfSense webConfigurator. It does not support SSO for other authentication areas
+    such as SSH, VPN, or other services.
 
 ## Source Code & Contributions
 
@@ -26,11 +26,12 @@ Please see the [CONTRIBUTING](CONTRIBUTING.md) guide for more information on how
 - <a href="https://github.com/jaredhendrickson13"><img src="https://github.com/jaredhendrickson13.png" alt="Jared Hendrickson" title="Jared Hendrickson" width="30" height="30"/> Jared Hendrickson</img></a> - github@jaredhendrickson.com
 
 !!! Important
-Unless your inquiry is regarding a [security vulnerability](SECURITY.md) or other sensitive matter, please do not
-contact the maintainers directly. Instead, please [open an issue](https://github.com/pfrest/pfSense-pkg-saml2-auth/issues/new/choose) to report a bug or request a feature. For
-general questions or help requests, please [open a discussion](https://github.com/pfrest/pfSense-pkg-saml2-auth/discussions/new/choose).
+    Unless your inquiry is regarding a [security vulnerability](SECURITY.md) or other sensitive matter, please do not
+    contact the maintainers directly. Instead, please [open an issue](https://github.com/pfrest/pfSense-pkg-saml2-auth/issues/new/choose) to report a bug or request a feature. For
+    general questions or help requests, please [open a discussion](https://github.com/pfrest/pfSense-pkg-saml2-auth/discussions/new/choose).
 
 ## Disclaimers
 
-!!! Caution - This package is not affiliated or supported by Netgate or the pfSense team; it is developed and maintained
-by the community.
+!!! Caution
+    - This package is not affiliated or supported by Netgate or the pfSense team; it is developed and maintained
+    by the community.

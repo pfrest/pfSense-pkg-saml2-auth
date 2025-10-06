@@ -4,6 +4,10 @@ nav:
   - General:
       - Home: index.md
       - Installation: INSTALLATION.md
+      - Privilege Mapping:
+          - Overview: PRIVILEGE_MAPPING.md
+          - By Group: PRIVILEGE_MAPPING_BY_GROUP.md
+          - By User: PRIVILEGE_MAPPING_BY_USER.md
       - IdP Instructions:
           - Overview: IDP_INSTRUCTIONS.md
           - Okta: idp/OKTA.md

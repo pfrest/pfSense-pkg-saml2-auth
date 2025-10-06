@@ -33,7 +33,9 @@ class Config {
     public bool $enable;
     public bool $strip_username;
     public bool $verbose_logging;
+    public bool $debug;
     public string $idp_metadata_url;
+    public bool $idp_verify_cert;
     public string $idp_entity_id;
     public string $idp_sign_on_url;
     public string $idp_groups_attribute;
@@ -77,7 +79,9 @@ class Config {
             'enable' => $this->to_internal_boolval($this->enable),
             'strip_username' => $this->to_internal_boolval($this->strip_username),
             'verbose_logging' => $this->to_internal_boolval($this->verbose_logging),
+            'debug' => $this->to_internal_boolval($this->debug),
             'idp_metadata_url' => $this->idp_metadata_url,
+            'idp_verify_cert' => $this->to_internal_boolval($this->idp_verify_cert),
             'idp_entity_id' => $this->idp_entity_id,
             'idp_sign_on_url' => $this->idp_sign_on_url,
             'idp_groups_attribute' => $this->idp_groups_attribute,
@@ -101,7 +105,9 @@ class Config {
         $this->enable = $this->from_internal_boolval($config_data['enable']);
         $this->strip_username = $this->from_internal_boolval($config_data['strip_username']);
         $this->verbose_logging = $this->from_internal_boolval($config_data['verbose_logging']);
+        $this->debug = $this->from_internal_boolval($config_data['debug']);
         $this->idp_metadata_url = $config_data['idp_metadata_url'] ?? '';
+        $this->idp_verify_cert = $this->from_internal_boolval($config_data['idp_verify_cert']);
         $this->idp_entity_id = $config_data['idp_entity_id'] ?? '';
         $this->idp_sign_on_url = $config_data['idp_sign_on_url'] ?? '';
         $this->idp_groups_attribute = $config_data['idp_groups_attribute'] ?? '';
@@ -246,6 +252,11 @@ class Config {
     public function save(): void {
         # Validate the configuration data before saving
         $this->validate();
+
+        # Enable verbose logging if debug is enabled
+        if ($this->debug) {
+            $this->verbose_logging = true;
+        }
 
         # Save the configuration data to the pfSense master configuration and backup the config
         config_set_path("installedpackages/package/$this->id/conf", $this->to_internal());

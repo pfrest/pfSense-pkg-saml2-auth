@@ -80,6 +80,20 @@ $general_section
             '<a href="https://192.168.55.72/status_logs_packages.php?pkg=SAML2">SAML2 log file</a> that may be useful for ' .
             'debugging purposes.',
     );
+$general_section
+    ->addInput(
+        new Form_Checkbox(
+            'debug',
+            'Debug Mode',
+            '',
+            Config::to_internal_boolval($conf->debug),
+        ),
+    )
+    ->setHelp(
+        'Enable debug mode. This is intended for use when debugging issues with SAML2 logins. This will enable ' .
+			'verbose logging as well as allow access to the <a href="/saml2_auth/sso/session/">debug session endpoint</a>.' .
+			' This option should not be enabled in production environments.',
+    );
 
 # POPULATE THE IDP SECTION OF THE UI
 $idp_section = new Form_Section('Identity Provider Settings (IdP)');
@@ -94,6 +108,7 @@ $idp_section
             'automatically fetched from your IdP and the fields below may be ignored. This will be provided by your IdP. ' .
             'Please note that any settings provided in the custom configuration field below may override these settings.',
     );
+
 $idp_section
     ->addInput(
         new Form_Input('idp_entity_id', 'Identity Provider Entity ID', 'text', $conf->idp_entity_id, [
@@ -127,8 +142,22 @@ $idp_section
 $idp_section
     ->addInput(new Form_Textarea('idp_x509_cert', 'Identity Provider x509 Certificate', $conf->idp_x509_cert))
     ->setHelp(
-        'Paste the x509 certificate data from the upstream identity provider. In most cases, this will be provided
-    by your IdP.',
+        'Paste the x509 SAML2 certificate from the upstream identity provider.',
+    );
+
+$idp_section
+    ->addInput(
+        new Form_Checkbox(
+            'idp_verify_cert',
+            'Identity Provider Verify Certificate',
+            '',
+            Config::to_internal_boolval($conf->idp_verify_cert),
+        ),
+    )
+    ->setHelp(
+        'Enable certificate verification when communicating with the IdP. When enabled, the IdP must use ' .
+        'a valid certificate for resources such as the metadata URL. Please note this only applies to ' .
+        'connections to the IdP metadata URL (if specified).'
     );
 
 # POPULATE THE SP SECTION OF THE UI

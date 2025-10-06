@@ -8,7 +8,7 @@ existing functionality remains completely unaffected, and is easily removable by
 package then uses OneLogin's excellent [SAML2 PHP toolkit](https://github.com/SAML-Toolkits/php-saml) to handle the
 SAML2 protocol interactions. This ensures a robust and secure implementation of SAML2 authentication within pfSense.
 
-## Wny isn't pfSense Plus officially supported?
+## Why isn't pfSense Plus officially supported?
 
 Official support for pfSense Plus isn't provided because it's a closed-source, commercial product, while this SAML2
 package is fundamentally built off the open-source pfSense Community Edition (CE). The package works by applying patch

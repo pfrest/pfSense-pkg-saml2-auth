@@ -3,4 +3,8 @@
 /vendor/
 .vagrant/
 /node_modules/
+/venv/
 *.pkg
+*.egg-info/
+build/
+.pytest_cache
