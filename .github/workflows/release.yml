@@ -33,8 +33,8 @@ jobs:
 
       - name: Build pfSense-pkg-saml2-auth on FreeBSD
         run: |
-          /usr/bin/ssh -o StrictHostKeyChecking=no ${{ matrix.freebsd_version }}.jaredhendrickson.com 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
-          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.freebsd_version }}.jaredhendrickson.com --branch ${{ github.sha }} --tag ${{ github.ref_name }} --filename pfSense-${{ matrix.pfsense_version }}-pkg-saml2-auth.pkg
+          /usr/bin/ssh -o StrictHostKeyChecking=no ${{ matrix.freebsd_version }}.actions.pfrest.org 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
+          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.freebsd_version }}.actions.pfrest.org --branch ${{ github.sha }} --tag ${{ github.ref_name }} --filename pfSense-${{ matrix.pfsense_version }}-pkg-saml2-auth.pkg
 
       - name: Teardown FreeBSD build VM
         if: "${{ always() }}"

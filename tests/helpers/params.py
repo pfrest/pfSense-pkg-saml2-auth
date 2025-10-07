@@ -27,25 +27,44 @@ class Params:
         idp_expected_group (list[str]): A list of expected user groups in SAML assertions from the IdP.
 
     """
+
     def __init__(self) -> None:
         self.pfsense_host = os.environ["PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST"]
-        self.pfsense_username = os.environ.get("PFSENSE_PKG_SAML2_AUTH_PFSENSE_USERNAME", "admin")
-        self.pfsense_password = os.environ.get("PFSENSE_PKG_SAML2_AUTH_PFSENSE_PASSWORD", "pfsense")
+        self.pfsense_username = os.environ.get(
+            "PFSENSE_PKG_SAML2_AUTH_PFSENSE_USERNAME", "admin"
+        )
+        self.pfsense_password = os.environ.get(
+            "PFSENSE_PKG_SAML2_AUTH_PFSENSE_PASSWORD", "pfsense"
+        )
         self.pfsense_port = os.environ.get("PFSENSE_PKG_SAML2_AUTH_PFSENSE_PORT", 443)
-        self.pfsense_scheme = os.environ.get("PFSENSE_PKG_SAML2_AUTH_PFSENSE_SCHEME", "https")
-        self.pfsense_url = f"{self.pfsense_scheme}://{self.pfsense_host}:{self.pfsense_port}"
-        self.pfsense_restapi_pkg_url = os.environ.get("PFSENSE_PKG_SAML2_AUTH_PFSENSE_RESTAPI_PKG_URL")
+        self.pfsense_scheme = os.environ.get(
+            "PFSENSE_PKG_SAML2_AUTH_PFSENSE_SCHEME", "https"
+        )
+        self.pfsense_url = (
+            f"{self.pfsense_scheme}://{self.pfsense_host}:{self.pfsense_port}"
+        )
+        self.pfsense_restapi_pkg_url = os.environ.get(
+            "PFSENSE_PKG_SAML2_AUTH_PFSENSE_RESTAPI_PKG_URL"
+        )
         self.idp_host = os.environ["PFSENSE_PKG_SAML2_AUTH_IDP_HOST"]
         self.idp_port = os.environ.get("PFSENSE_PKG_SAML2_AUTH_IDP_PORT", 8443)
         self.idp_scheme = os.environ.get("PFSENSE_PKG_SAML2_AUTH_IDP_SCHEME", "https")
         self.idp_url = f"{self.idp_scheme}://{self.idp_host}:{self.idp_port}"
-        self.idp_metadata_url = f"{self.idp_url}{os.environ['PFSENSE_PKG_SAML2_AUTH_IDP_METADATA_URL']}"
+        self.idp_metadata_url = (
+            f"{self.idp_url}{os.environ['PFSENSE_PKG_SAML2_AUTH_IDP_METADATA_URL']}"
+        )
         self.idp_entity_id = os.environ["PFSENSE_PKG_SAML2_AUTH_IDP_ENTITY_ID"]
         self.idp_sign_on_url = os.environ["PFSENSE_PKG_SAML2_AUTH_IDP_SIGN_ON_URL"]
-        self.idp_groups_attribute = os.environ.get("PFSENSE_PKG_SAML2_AUTH_IDP_GROUPS_ATTRIBUTE")
+        self.idp_groups_attribute = os.environ.get(
+            "PFSENSE_PKG_SAML2_AUTH_IDP_GROUPS_ATTRIBUTE"
+        )
         self.idp_x509_cert = self.fetch_cert_from_idp()
-        self.idp_expected_nameid = os.environ.get("PFSENSE_PKG_SAML2_AUTH_IDP_EXPECTED_NAMEID")
-        self.idp_expected_group = os.environ.get("PFSENSE_PKG_SAML2_AUTH_IDP_EXPECTED_GROUP", "")
+        self.idp_expected_nameid = os.environ.get(
+            "PFSENSE_PKG_SAML2_AUTH_IDP_EXPECTED_NAMEID"
+        )
+        self.idp_expected_group = os.environ.get(
+            "PFSENSE_PKG_SAML2_AUTH_IDP_EXPECTED_GROUP", ""
+        )
 
     def fetch_cert_from_idp(self) -> str:
         """

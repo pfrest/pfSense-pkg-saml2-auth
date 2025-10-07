@@ -8,7 +8,10 @@ To install pfSense-pkg-saml2-auth, simply run the following command in your pfSe
 pkg-static add https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/latest/download/pfSense-2.8-pkg-saml2-auth.pkg
 ```
 
-!!! Important - You may need to customize the installation command to reference the package built for your pfSense version. Check the [releases page](https://github.com/pfrest/pfSense-pkg-saml2-auth/releases) to find the package built for your version of pfSense. - When updating pfSense, **you must reinstall this package afterward** as pfSense removes unofficial packages during system updates and has no way to automatically reinstall them. - If you're looking for a method of programmatically installing the package without SSH, check out [pfsense-vshell](https://github.com/pfrest/pfsense-vshell)!
+!!! Important 
+    - You may need to customize the installation command to reference the package built for your pfSense version. Check the [releases page](https://github.com/pfrest/pfSense-pkg-saml2-auth/releases) to find the package built for your version of pfSense.
+    - When updating pfSense, **you must reinstall this package afterward** as pfSense removes unofficial packages during system updates and has no way to automatically reinstall them.
+    - If you're looking for a method of programmatically installing the package without SSH, check out [pfsense-vshell](https://github.com/pfrest/pfsense-vshell)!
 
 ## Updating the Package
 
@@ -40,7 +43,8 @@ pkg-static delete -y pfSense-pkg-saml2-auth
 pkg-static add https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/latest/download/pfSense-2.8-pkg-saml2-auth.pkg
 ```
 
-!!! Note - Make sure to replace the URL with the appropriate one for your pfSense version.
+!!! Note 
+    Make sure to replace the URL with the appropriate one for your pfSense version.
 
 ## Reverting a Package Update
 
@@ -65,7 +69,7 @@ pfsense-saml2 revert <version>
 ```
 
 !!! Note
-You can only revert to versions available for your version of pfSense.
+    You can only revert to versions available for your version of pfSense.
 
 ### Using Manual Commands
 
@@ -76,7 +80,8 @@ pkg-static delete -y pfSense-pkg-saml2-auth
 pkg-static add https://github.com/pfrest/pfSense-pkg-saml2-auth/releases/download/<version>/pfSense-2.8-pkg-saml2-auth.pkg
 ```
 
-!!! Note - Make sure to replace the URL with the appropriate one for your pfSense version and the version you want to install.
+!!! Note
+    Make sure to replace the URL with the appropriate one for your pfSense version and the version you want to install.
 
 ## Uninstalling the Package
 

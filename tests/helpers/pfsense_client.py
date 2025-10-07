@@ -20,6 +20,7 @@ class PfSenseClient:
         url (str): The base URL for the pfSense instance
         client (pfsense_vshell.PFClient): An instance of PFClient for executing commands on pfSense
     """
+
     def __init__(self) -> None:
         # Load test parameters from environment variables
         params = Params()
@@ -38,7 +39,7 @@ class PfSenseClient:
             password=self.password,
             port=self.port,
             scheme=self.scheme,
-            verify=False
+            verify=False,
         )
 
     def set_saml2_config(self, config: dict) -> None:
@@ -88,11 +89,7 @@ class PfSenseClient:
             auth=(self.username, self.password),
             headers={"Content-Type": "application/json", "Accept": "application/json"},
             verify=False,
-            json={
-                "name": username,
-                "password": password,
-                "priv": privileges
-            },
+            json={"name": username, "password": password, "priv": privileges},
         )
 
         if user_post.status_code != 200:
@@ -114,7 +111,10 @@ class PfSenseClient:
             url=f"{self.scheme}://{self.host}:{self.port}/api/v2/user?id={user_id}",
             auth=(self.username, self.password),
             verify=False,
-            headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json",
+            },
         )
 
         if user_delete.status_code != 200:
@@ -138,10 +138,7 @@ class PfSenseClient:
             auth=(self.username, self.password),
             headers={"Content-Type": "application/json", "Accept": "application/json"},
             verify=False,
-            json={
-                "name": name,
-                "priv": privileges
-            },
+            json={"name": name, "priv": privileges},
         )
 
         if group_post.status_code != 200:
@@ -163,7 +160,10 @@ class PfSenseClient:
             url=f"{self.scheme}://{self.host}:{self.port}/api/v2/user/group?id={group_id}",
             auth=(self.username, self.password),
             verify=False,
-            headers={"Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json"},
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Accept": "application/json",
+            },
         )
 
         if group_delete.status_code != 200:

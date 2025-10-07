@@ -1,4 +1,4 @@
-# By Group
+# Group-based Privilege Mapping
 
 Mapping privileges by IdP group membership allows your IdP to specify which groups the SSO user belongs to. When
 the user logs in, the user will automatically inherit the permissions assigned to matching user groups configured on 

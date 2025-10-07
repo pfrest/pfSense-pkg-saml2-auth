@@ -5,8 +5,8 @@
 This package is designed for seamless integration with pfSense. When installed, it applies specific patches to the
 pfSense core to add SAML2 support directly into the native authentication process. This approach ensures that all
 existing functionality remains completely unaffected, and is easily removable by simply uninstalling the package. The
-package then uses OneLogin's excellent [SAML2 PHP toolkit](https://github.com/SAML-Toolkits/php-saml) to handle the
-SAML2 protocol interactions. This ensures a robust and secure implementation of SAML2 authentication within pfSense.
+package then uses OneLogin's excellent [SAML2 PHP toolkit](https://github.com/SAML-Toolkits/php-saml) to handle the SAML2 protocol interactions. This 
+ensures a robust and secure implementation of SAML2 authentication within pfSense.
 
 ## Why isn't pfSense Plus officially supported?
 

@@ -103,6 +103,13 @@ class Auth {
             $_SESSION['saml2_name_id'] = $this->auth->getNameId();
             unset($_SESSION['AuthNRequestID']);
 
+            # Log attributes to debug log
+            $this->log(
+                level: LOG_DEBUG,
+                message: "Successful SAML2 sign on for '{$this->auth->getNameId()}', received attributes: " .
+                    json_encode($_SESSION['saml2_user_data']),
+            );
+
             # Support RelayState settings
             if (isset($_POST['RelayState']) && Utils::getSelfURL() != $_POST['RelayState']) {
                 $this->auth->redirectTo($_POST['RelayState']);
@@ -142,7 +149,7 @@ class Auth {
      */
     public function log(int $level, string $message, string $logfile = 'saml2'): void {
         # Only log debug messages when verbose logging is enabled
-        if ($level === LOG_DEBUG and !$this->config->verbose_logging) {
+        if ($level === LOG_DEBUG and !$this->config->debug_mode) {
             return;
         }
 
@@ -212,10 +219,7 @@ class Auth {
         # When an IdP metadata URL is configured, allow the IdP metadata to override the current IdP settings
         if ($this->config->idp_metadata_url) {
             try {
-                $idp_metadata = IdPMetadataParser::parseRemoteXML(
-                    $this->config->idp_metadata_url,
-                    validatePeer: $this->config->idp_verify_cert
-                );
+                $idp_metadata = IdPMetadataParser::parseRemoteXML($this->config->idp_metadata_url);
                 $php_saml_config = array_replace_recursive($php_saml_config, $idp_metadata);
                 $this->log(
                     level: LOG_DEBUG,

@@ -1,13 +1,21 @@
 """Tests for ensuring SSO logins map to correct privileges based on matching group memberships."""
+
 from playwright.sync_api import Browser
 from tests.helpers import Params
-from tests.conftest import params, chromium_browser, pfsense_user_group, saml2_config_default
+from tests.conftest import (
+    params,
+    chromium_browser,
+    pfsense_user_group,
+    saml2_config_default,
+)
 import pytest
 
 
-@pytest.mark.usefixtures('pfsense_user_group')
-@pytest.mark.usefixtures('saml2_config_default')
-def test_sso_group_privilege_mapping_chromium(params: Params, chromium_browser: Browser) -> None:
+@pytest.mark.usefixtures("pfsense_user_group")
+@pytest.mark.usefixtures("saml2_config_default")
+def test_sso_group_privilege_mapping_chromium(
+    params: Params, chromium_browser: Browser
+) -> None:
     """
     Test that SSO users can inherit privileges based on group membership.
     """
@@ -23,11 +31,15 @@ def test_sso_group_privilege_mapping_chromium(params: Params, chromium_browser: 
     session = session_resp.json()
     assert "error" not in session
     assert "allowed_pages" in session
-    assert "*" in session["allowed_pages"]  # pfsense_user_group fixture creates group with page-all privileges
+    assert (
+        "*" in session["allowed_pages"]
+    )  # pfsense_user_group fixture creates group with page-all privileges
 
 
-@pytest.mark.usefixtures('saml2_config_default')
-def test_sso_group_with_no_priv_chromium(params: Params, chromium_browser: Browser) -> None:
+@pytest.mark.usefixtures("saml2_config_default")
+def test_sso_group_with_no_priv_chromium(
+    params: Params, chromium_browser: Browser
+) -> None:
     """
     Ensure SSO logins for a user that has no inherited privileges via group membership are denied access.
     """
@@ -46,9 +58,11 @@ def test_sso_group_with_no_priv_chromium(params: Params, chromium_browser: Brows
     assert session_resp.status == 401
 
 
-@pytest.mark.usefixtures('pfsense_user_group')
-@pytest.mark.usefixtures('saml2_config_default')
-def test_sso_group_privilege_mapping_firefox(params: Params, firefox_browser: Browser) -> None:
+@pytest.mark.usefixtures("pfsense_user_group")
+@pytest.mark.usefixtures("saml2_config_default")
+def test_sso_group_privilege_mapping_firefox(
+    params: Params, firefox_browser: Browser
+) -> None:
     """
     Test that SSO users can inherit privileges based on group membership.
     """
@@ -64,11 +78,15 @@ def test_sso_group_privilege_mapping_firefox(params: Params, firefox_browser: Br
     session = session_resp.json()
     assert "error" not in session
     assert "allowed_pages" in session
-    assert "*" in session["allowed_pages"]  # pfsense_user_group fixture creates group with page-all privileges
+    assert (
+        "*" in session["allowed_pages"]
+    )  # pfsense_user_group fixture creates group with page-all privileges
 
 
-@pytest.mark.usefixtures('saml2_config_default')
-def test_sso_group_with_no_priv_firefox(params: Params, firefox_browser: Browser) -> None:
+@pytest.mark.usefixtures("saml2_config_default")
+def test_sso_group_with_no_priv_firefox(
+    params: Params, firefox_browser: Browser
+) -> None:
     """
     Ensure SSO logins for a user that has no inherited privileges via group membership are denied access.
     """

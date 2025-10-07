@@ -37,14 +37,14 @@ class Saml2CoreAuthTestCase extends TestCase {
         $this->assert_str_contains($log_contents, $unique_message);
 
         # Ensure verbose log entries are not present if verbose logging is disabled
-        $auth->config->verbose_logging = false;
+        $auth->config->debug_mode = false;
         $unique_message = 'Verbose log entry ' . uniqid();
         $auth->log(level: LOG_DEBUG, message: $unique_message);
         $log_contents = file_get_contents('/var/log/saml2.log');
         $this->assert_str_does_not_contain($log_contents, $unique_message);
 
         # Ensure verbose log entries are present if verbose logging is enabled
-        $auth->config->verbose_logging = true;
+        $auth->config->debug_mode = true;
         $unique_message = 'Verbose log entry ' . uniqid();
         $auth->log(level: LOG_DEBUG, message: $unique_message);
         $log_contents = file_get_contents('/var/log/saml2.log');

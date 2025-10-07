@@ -6,16 +6,15 @@ from tests.helpers import PfSenseClient, Params
 
 class Saml2Config:
     """Helper class for managing SAML2 configuration in pfSense."""
+
     enable: bool
     strip_username: bool
-    verbose_logging: bool
-    debug: bool
+    debug_mode: bool
     idp_metadata_url: str
     idp_entity_id: str
     idp_sign_on_url: str
     idp_groups_attribute: str
     idp_x509_cert: str
-    idp_verify_cert: bool
     sp_base_url: str
     custom_conf: str
 
@@ -24,12 +23,17 @@ class Saml2Config:
         self.params = Params()
         self.enable = kwargs.get("enable", True)
         self.strip_username = kwargs.get("strip_username", True)
-        self.verbose_logging = kwargs.get("verbose_logging", True)
-        self.debug = kwargs.get("debug", True)
-        self.idp_metadata_url = kwargs.get("idp_metadata_url", self.params.idp_metadata_url)
+        self.debug_mode = kwargs.get("debug_mode", True)
+        self.idp_metadata_url = kwargs.get(
+            "idp_metadata_url", self.params.idp_metadata_url
+        )
         self.idp_entity_id = kwargs.get("idp_entity_id", self.params.idp_entity_id)
-        self.idp_sign_on_url = kwargs.get("idp_sign_on_url", self.params.idp_sign_on_url)
-        self.idp_groups_attribute = kwargs.get("idp_groups_attribute", self.params.idp_groups_attribute)
+        self.idp_sign_on_url = kwargs.get(
+            "idp_sign_on_url", self.params.idp_sign_on_url
+        )
+        self.idp_groups_attribute = kwargs.get(
+            "idp_groups_attribute", self.params.idp_groups_attribute
+        )
         self.idp_x509_cert = kwargs.get("idp_x509_cert", self.params.idp_x509_cert)
         self.idp_verify_cert = kwargs.get("idp_verify_cert", False)
         self.sp_base_url = kwargs.get("sp_base_url", self.params.pfsense_url)
@@ -55,14 +59,12 @@ class Saml2Config:
         return {
             "enable": self.to_pfsense_bool(self.enable),
             "strip_username": self.to_pfsense_bool(self.strip_username),
-            "verbose_logging": self.to_pfsense_bool(self.verbose_logging),
-            "debug": self.to_pfsense_bool(self.debug),
+            "debug_mode": self.to_pfsense_bool(self.debug_mode),
             "idp_metadata_url": self.idp_metadata_url,
             "idp_entity_id": self.idp_entity_id,
             "idp_sign_on_url": f"{self.params.idp_url}{self.idp_sign_on_url}",
             "idp_groups_attribute": self.idp_groups_attribute,
             "idp_x509_cert": base64.b64encode(self.idp_x509_cert.encode()).decode(),
-            "idp_verify_cert": self.to_pfsense_bool(self.idp_verify_cert),
             "sp_base_url": self.sp_base_url,
             "custom_conf": base64.b64encode(self.custom_conf.encode()).decode(),
         }

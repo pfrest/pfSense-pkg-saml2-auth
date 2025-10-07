@@ -73,7 +73,7 @@ def saml2_config_no_groups() -> Saml2Config:
         Saml2Config: Configuration object with no group mappings
     """
     conf = Saml2Config()
-    conf.idp_attribute_groups = ""
+    conf.idp_groups_attribute = ""
     conf.save()
     yield conf
 
@@ -139,7 +139,7 @@ def pfsense_user(pfsense_client: PfSenseClient, params: Params) -> None:
     user = pfsense_client.add_user(
         username=params.idp_expected_nameid,
         password="testpassword",
-        privileges=["page-all"]
+        privileges=["page-all"],
     )
     yield
     pfsense_client.delete_user(user["data"]["id"])
@@ -150,6 +150,8 @@ def pfsense_user_group(pfsense_client: PfSenseClient, params: Params) -> None:
     """
     Pytest fixture to ensure a test user group exists in pfSense
     """
-    group = pfsense_client.add_user_group(name=params.idp_expected_group, privileges=["page-all"])
+    group = pfsense_client.add_user_group(
+        name=params.idp_expected_group, privileges=["page-all"]
+    )
     yield
     pfsense_client.delete_user_group(group["data"]["id"])

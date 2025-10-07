@@ -1,13 +1,22 @@
 """Tests for ensuring basic SSO login functionality works."""
+
 from playwright.sync_api import Browser
 from tests.helpers import Params
-from tests.conftest import params, chromium_browser, pfsense_user_group, saml2_config_manual, saml2_config_auto
+from tests.conftest import (
+    params,
+    chromium_browser,
+    pfsense_user_group,
+    saml2_config_manual,
+    saml2_config_auto,
+)
 import pytest
 
 
-@pytest.mark.usefixtures('pfsense_user_group')
-@pytest.mark.usefixtures('saml2_config_auto')
-def test_sso_login_chromium_with_auto_config(params: Params, chromium_browser: Browser) -> None:
+@pytest.mark.usefixtures("pfsense_user_group")
+@pytest.mark.usefixtures("saml2_config_auto")
+def test_sso_login_chromium_with_auto_config(
+    params: Params, chromium_browser: Browser
+) -> None:
     """
     Test SSO login functionality using Chromium browser and automatic IdP configuration
     """
@@ -28,9 +37,11 @@ def test_sso_login_chromium_with_auto_config(params: Params, chromium_browser: B
     assert session["saml2_name_id"] == params.idp_expected_nameid
 
 
-@pytest.mark.usefixtures('pfsense_user_group')
-@pytest.mark.usefixtures('saml2_config_manual')
-def test_sso_login_chromium_with_manual_config(params: Params, chromium_browser: Browser) -> None:
+@pytest.mark.usefixtures("pfsense_user_group")
+@pytest.mark.usefixtures("saml2_config_manual")
+def test_sso_login_chromium_with_manual_config(
+    params: Params, chromium_browser: Browser
+) -> None:
     """
     Test SSO login functionality using Chromium browser and manual IdP configuration
     """
@@ -51,9 +62,11 @@ def test_sso_login_chromium_with_manual_config(params: Params, chromium_browser:
     assert session["saml2_name_id"] == params.idp_expected_nameid
 
 
-@pytest.mark.usefixtures('pfsense_user_group')
-@pytest.mark.usefixtures('saml2_config_auto')
-def test_sso_login_firefox_with_auto_config(params: Params, firefox_browser: Browser) -> None:
+@pytest.mark.usefixtures("pfsense_user_group")
+@pytest.mark.usefixtures("saml2_config_auto")
+def test_sso_login_firefox_with_auto_config(
+    params: Params, firefox_browser: Browser
+) -> None:
     """
     Test SSO login functionality using Firefox browser
     """
@@ -74,9 +87,11 @@ def test_sso_login_firefox_with_auto_config(params: Params, firefox_browser: Bro
     assert session["saml2_name_id"] == params.idp_expected_nameid
 
 
-@pytest.mark.usefixtures('pfsense_user_group')
-@pytest.mark.usefixtures('saml2_config_manual')
-def test_sso_login_firefox_with_manual_config(params: Params, firefox_browser: Browser) -> None:
+@pytest.mark.usefixtures("pfsense_user_group")
+@pytest.mark.usefixtures("saml2_config_manual")
+def test_sso_login_firefox_with_manual_config(
+    params: Params, firefox_browser: Browser
+) -> None:
     """
     Test SSO login functionality using Firefox browser
     """

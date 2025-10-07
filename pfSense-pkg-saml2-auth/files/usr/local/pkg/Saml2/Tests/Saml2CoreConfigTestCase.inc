@@ -21,7 +21,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         $conf = new Config([
             'enable' => 'yes',
             'strip_username' => '',
-            'verbose_logging' => 'yes',
+            'debug_mode' => 'yes',
             'idp_metadata_url' => 'https://idp.example.com/metadata',
             'idp_entity_id' => 'https://idp.example.com/entity',
             'idp_sign_on_url' => 'https://idp.example.com/sso',
@@ -34,7 +34,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         # Ensure each config value is properly set and retrieved
         $this->assert_equals($conf->enable, true);
         $this->assert_equals($conf->strip_username, false);
-        $this->assert_equals($conf->verbose_logging, true);
+        $this->assert_equals($conf->debug_mode, true);
         $this->assert_equals($conf->idp_metadata_url, 'https://idp.example.com/metadata');
         $this->assert_equals($conf->idp_entity_id, 'https://idp.example.com/entity');
         $this->assert_equals($conf->idp_sign_on_url, 'https://idp.example.com/sso');
@@ -77,7 +77,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         $conf = new Config();
         $conf->enable = true;
         $conf->strip_username = true;
-        $conf->verbose_logging = false;
+        $conf->debug_mode = false;
         $conf->idp_metadata_url = 'https://idp.example.com/metadata';
         $conf->idp_entity_id = 'https://idp.example.com/entity';
         $conf->idp_sign_on_url = 'https://idp.example.com/sso';
@@ -90,7 +90,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         $internal = $conf->to_internal();
         $this->assert_equals($internal['enable'], 'yes');
         $this->assert_equals($internal['strip_username'], 'yes');
-        $this->assert_equals($internal['verbose_logging'], '');
+        $this->assert_equals($internal['debug_mode'], '');
         $this->assert_equals($internal['idp_metadata_url'], 'https://idp.example.com/metadata');
         $this->assert_equals($internal['idp_entity_id'], 'https://idp.example.com/entity');
         $this->assert_equals($internal['idp_sign_on_url'], 'https://idp.example.com/sso');
@@ -114,7 +114,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         $conf->from_internal([
             'enable' => 'yes',
             'strip_username' => '',
-            'verbose_logging' => 'yes',
+            'debug_mode' => 'yes',
             'idp_metadata_url' => 'https://idp.example.com/metadata',
             'idp_entity_id' => 'https://idp.example.com/entity',
             'idp_sign_on_url' => 'https://idp.example.com/sso',
@@ -127,7 +127,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         # Ensure each config value is properly set and retrieved
         $this->assert_equals($conf->enable, true);
         $this->assert_equals($conf->strip_username, false);
-        $this->assert_equals($conf->verbose_logging, true);
+        $this->assert_equals($conf->debug_mode, true);
         $this->assert_equals($conf->idp_metadata_url, 'https://idp.example.com/metadata');
         $this->assert_equals($conf->idp_entity_id, 'https://idp.example.com/entity');
         $this->assert_equals($conf->idp_sign_on_url, 'https://idp.example.com/sso');
@@ -370,7 +370,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         # Valid config should not throw an error
         $conf->enable = true;
         $conf->strip_username = false;
-        $conf->verbose_logging = false;
+        $conf->debug_mode = false;
         $conf->idp_metadata_url = 'https://idp.example.com/metadata';
         $conf->idp_entity_id = 'https://idp.example.com/entity';
         $conf->idp_sign_on_url = 'https://idp.example.com/sso';
@@ -384,7 +384,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         $internal = $conf->get_raw_config()['conf'];
         $this->assert_equals($internal['enable'], 'yes');
         $this->assert_equals($internal['strip_username'], '');
-        $this->assert_equals($internal['verbose_logging'], '');
+        $this->assert_equals($internal['debug_mode'], '');
         $this->assert_equals($internal['idp_metadata_url'], 'https://idp.example.com/metadata');
         $this->assert_equals($internal['idp_entity_id'], 'https://idp.example.com/entity');
         $this->assert_equals($internal['idp_sign_on_url'], 'https://idp.example.com/sso');
@@ -404,7 +404,7 @@ class Saml2CoreConfigTestCase extends TestCase {
         $conf = new Config();
         $conf->enable = true;
         $conf->strip_username = false;
-        $conf->verbose_logging = false;
+        $conf->debug_mode = false;
         $conf->idp_metadata_url = 'https://idp.example.com/metadata';
         $conf->idp_entity_id = 'https://idp.example.com/entity';
         $conf->idp_sign_on_url = 'https://idp.example.com/sso';

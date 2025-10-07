@@ -12,10 +12,8 @@
         <conf>
             <enable></enable>
             <strip_username>yes</strip_username>
-            <verbose_logging></verbose_logging>
-            <debug></debug>
+            <debug_mode></debug_mode>
             <idp_metadata_url></idp_metadata_url>
-            <idp_verify_cert>yes</idp_verify_cert>
             <idp_entity_id></idp_entity_id>
             <idp_sign_on_url></idp_sign_on_url>
             <idp_groups_attribute></idp_groups_attribute>

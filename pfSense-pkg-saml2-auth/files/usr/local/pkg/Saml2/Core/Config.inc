@@ -32,10 +32,8 @@ class Config {
     public int $id;
     public bool $enable;
     public bool $strip_username;
-    public bool $verbose_logging;
-    public bool $debug;
+    public bool $debug_mode;
     public string $idp_metadata_url;
-    public bool $idp_verify_cert;
     public string $idp_entity_id;
     public string $idp_sign_on_url;
     public string $idp_groups_attribute;
@@ -78,10 +76,8 @@ class Config {
         return [
             'enable' => $this->to_internal_boolval($this->enable),
             'strip_username' => $this->to_internal_boolval($this->strip_username),
-            'verbose_logging' => $this->to_internal_boolval($this->verbose_logging),
-            'debug' => $this->to_internal_boolval($this->debug),
+            'debug_mode' => $this->to_internal_boolval($this->debug_mode),
             'idp_metadata_url' => $this->idp_metadata_url,
-            'idp_verify_cert' => $this->to_internal_boolval($this->idp_verify_cert),
             'idp_entity_id' => $this->idp_entity_id,
             'idp_sign_on_url' => $this->idp_sign_on_url,
             'idp_groups_attribute' => $this->idp_groups_attribute,
@@ -104,10 +100,8 @@ class Config {
         $this->id = $stored_config_data['id'];
         $this->enable = $this->from_internal_boolval($config_data['enable']);
         $this->strip_username = $this->from_internal_boolval($config_data['strip_username']);
-        $this->verbose_logging = $this->from_internal_boolval($config_data['verbose_logging']);
-        $this->debug = $this->from_internal_boolval($config_data['debug']);
+        $this->debug_mode = $this->from_internal_boolval($config_data['debug']);
         $this->idp_metadata_url = $config_data['idp_metadata_url'] ?? '';
-        $this->idp_verify_cert = $this->from_internal_boolval($config_data['idp_verify_cert']);
         $this->idp_entity_id = $config_data['idp_entity_id'] ?? '';
         $this->idp_sign_on_url = $config_data['idp_sign_on_url'] ?? '';
         $this->idp_groups_attribute = $config_data['idp_groups_attribute'] ?? '';
@@ -254,8 +248,8 @@ class Config {
         $this->validate();
 
         # Enable verbose logging if debug is enabled
-        if ($this->debug) {
-            $this->verbose_logging = true;
+        if ($this->debug_mode) {
+            $this->debug_mode = true;
         }
 
         # Save the configuration data to the pfSense master configuration and backup the config

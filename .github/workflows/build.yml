@@ -37,8 +37,8 @@ jobs:
 
       - name: Build pfSense-pkg-saml2-auth on FreeBSD
         run: |
-          /usr/bin/ssh -o StrictHostKeyChecking=no -o LogLevel=quiet ${{ matrix.FREEBSD_VERSION }}.jaredhendrickson.com 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
-          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.FREEBSD_VERSION }}.jaredhendrickson.com --branch ${{ env.COMMIT_ID }} --tag ${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}
+          /usr/bin/ssh -o StrictHostKeyChecking=no -o LogLevel=quiet ${{ matrix.FREEBSD_VERSION }}.actions.pfrest.org 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
+          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.FREEBSD_VERSION }}.actions.pfrest.org --branch ${{ env.COMMIT_ID }} --tag ${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}
 
       - name: Teardown FreeBSD build VM
         if: "${{ always() }}"
@@ -59,10 +59,13 @@ jobs:
       matrix:
         include:
           - PFSENSE_VERSION: pfSense-2.7.2-RELEASE
+            PFSENSE_RESTAPI_PKG_URL: https://github.com/jaredhendrickson13/pfsense-api/releases/download/v2.4.3/pfSense-2.7.2-pkg-RESTAPI.pkg
             FREEBSD_ID: freebsd14
           - PFSENSE_VERSION: pfSense-2.8.0-RELEASE
+            PFSENSE_RESTAPI_PKG_URL: https://github.com/jaredhendrickson13/pfsense-api/releases/latest/download/pfSense-2.8.0-pkg-RESTAPI.pkg
             FREEBSD_ID: freebsd15
           - PFSENSE_VERSION: pfSense-2.8.1-RELEASE
+            PFSENSE_RESTAPI_PKG_URL: https://github.com/jaredhendrickson13/pfsense-api/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg
             FREEBSD_ID: freebsd15
 
     steps:
@@ -83,23 +86,36 @@ jobs:
       # This is only necessary until GitHub Actions allows an easier way to get a URL to download the artifact within pfSense
       - name: Copy pfSense-pkg-saml2-auth build to pfSense
         run: |
-          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com -u admin -p pfsense -c 'pfSsh.php playback enablesshd' -k
-          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com -u admin -p pfsense -c "mkdir /root/.ssh/ && echo $(cat ~/.ssh/id_rsa.pub) > /root/.ssh/authorized_keys" -k
-          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com -u admin -p pfsense -c "pkill ntpd" -k
-          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com -u admin -p pfsense -c "ntpdate pool.ntp.org" -k
-          scp -o StrictHostKeyChecking=no pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg admin@${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com:/tmp/
+          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org -u admin -p pfsense -c 'pfSsh.php playback enablesshd' -k
+          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org -u admin -p pfsense -c "mkdir /root/.ssh/ && echo $(cat ~/.ssh/id_rsa.pub) > /root/.ssh/authorized_keys" -k
+          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org -u admin -p pfsense -c "pkill ntpd" -k
+          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org -u admin -p pfsense -c "ntpdate pool.ntp.org" -k
+          scp -o StrictHostKeyChecking=no pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg admin@${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org:/tmp/
 
       - name: Install pfSense-pkg-saml2-auth on pfSense
         run: |
-          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com "pkg -C /dev/null add /tmp/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg"
+          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org "pkg -C /dev/null add /tmp/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg"
           sleep 5
 
       - name: Run pfSense-pkg-saml2-auth tests
         run: |
-          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ matrix.PFSENSE_VERSION }}.jaredhendrickson.com 'pfsense-saml2 runtests'
+          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org 'pfsense-saml2 runtests'
+
+      - name: Run pfSense-pkg-saml2-auth e2e tests
+        env:
+          PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org
+          PFSENSE_PKG_SAML2_AUTH_IDP_HOST: mock-saml2-idp.actions.pfrest.org
+          SP_ENTITY_ID: https://${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org:443/saml2_auth/sso/metadata/
+          SP_ACS_LOCATION: https://${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org/saml2_auth/sso/acs/
+        run: |
+          docker-compose -f tests/docker-compose.yml up -d
+          docker compose -f tests/docker-compose.yml exec -T tests pytest --pyargs tests.e2e   
 
       - name: Teardown pfSense VM
         if: "${{ always() }}"
         run: |
           /usr/local/bin/VBoxManage controlvm ${{ matrix.PFSENSE_VERSION }} poweroff || true
           /usr/local/bin/VBoxManage snapshot ${{ matrix.PFSENSE_VERSION }} restore initial
+          docker-compose -f tests/docker-compose.yml down
+          docker-compose -f tests/docker-compose.yml rm -f
+          docker volume prune -f

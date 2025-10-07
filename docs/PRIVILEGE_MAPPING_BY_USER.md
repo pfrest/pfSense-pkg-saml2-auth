@@ -1,4 +1,4 @@
-# By User
+# User-based Privilege Mapping
 
 Mapping privileges by local user account allows existing pfSense users to be assigned their existing permissions 
 when logging in via SSO. This is useful if you want to manage user accounts and permissions entirely on pfSense,
