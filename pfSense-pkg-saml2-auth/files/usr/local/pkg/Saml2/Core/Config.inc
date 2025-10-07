@@ -100,7 +100,7 @@ class Config {
         $this->id = $stored_config_data['id'];
         $this->enable = $this->from_internal_boolval($config_data['enable']);
         $this->strip_username = $this->from_internal_boolval($config_data['strip_username']);
-        $this->debug_mode = $this->from_internal_boolval($config_data['debug']);
+        $this->debug_mode = $this->from_internal_boolval($config_data['debug_mode']);
         $this->idp_metadata_url = $config_data['idp_metadata_url'] ?? '';
         $this->idp_entity_id = $config_data['idp_entity_id'] ?? '';
         $this->idp_sign_on_url = $config_data['idp_sign_on_url'] ?? '';
