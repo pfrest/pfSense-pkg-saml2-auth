@@ -103,10 +103,11 @@ jobs:
 
       - name: Run pfSense-pkg-saml2-auth e2e tests
         env:
-          PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org
-          PFSENSE_PKG_SAML2_AUTH_IDP_HOST: mock-saml2-idp.actions.pfrest.org
           SP_ENTITY_ID: https://${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org:443/saml2_auth/sso/metadata/
-          SP_ACS_LOCATION: https://${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org/saml2_auth/sso/acs/
+          SP_ACS_LOCATION: https://${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org:443/saml2_auth/sso/acs/
+          PFSENSE_PKG_SAML2_AUTH_IDP_HOST: mock-saml2-idp.actions.pfrest.org
+          PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org
+          PFSENSE_PKG_SAML2_AUTH_PFSENSE_RESTAPI_PKG_URL: ${{ matrix.PFSENSE_RESTAPI_PKG_URL }}
         run: |
           docker-compose -f tests/docker-compose.yml up -d
           docker compose -f tests/docker-compose.yml exec -T tests pytest --pyargs tests.e2e   
