@@ -28,23 +28,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+
       - name: Setup FreeBSD build VM
-        run: |
-          /usr/local/bin/VBoxManage controlvm ${{ matrix.FREEBSD_VERSION }} poweroff || true
-          /usr/local/bin/VBoxManage snapshot ${{ matrix.FREEBSD_VERSION }} restore initial
-          /usr/local/bin/VBoxManage startvm ${{ matrix.FREEBSD_VERSION }} --type headless
-          sleep 5
+        uses: ./.github/actions/setup_vm
+        id: setup_vm
+        with:
+          name: ${{ matrix.FREEBSD_VERSION }}
+          snapshot: initial
+          domain: actions.pfrest.org
+          wait_time: 5
 
       - name: Build pfSense-pkg-saml2-auth on FreeBSD
         run: |
-          /usr/bin/ssh -o StrictHostKeyChecking=no -o LogLevel=quiet ${{ matrix.FREEBSD_VERSION }}.actions.pfrest.org 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
-          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.FREEBSD_VERSION }}.actions.pfrest.org --branch ${{ env.COMMIT_ID }} --tag ${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}
+          /usr/bin/ssh -o StrictHostKeyChecking=no -o LogLevel=quiet ${{ steps.setup_vm.outputs.fqdn }} 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
+          /usr/local/bin/python3 tools/make_package.py --host ${{ steps.setup_vm.outputs.fqdn }} --branch ${{ env.COMMIT_ID }} --tag ${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}
 
       - name: Teardown FreeBSD build VM
         if: "${{ always() }}"
-        run: |
-          /usr/local/bin/VBoxManage controlvm ${{ matrix.FREEBSD_VERSION }} poweroff || true
-          /usr/local/bin/VBoxManage snapshot ${{matrix.FREEBSD_VERSION}} restore initial
+        uses: ./.github/actions/teardown_vm
+        with:
+          name: ${{ matrix.FREEBSD_VERSION }}
+          snapshot: initial
 
       - uses: actions/upload-artifact@v4
         with:
@@ -77,36 +81,47 @@ jobs:
           path: pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg
 
       - name: Setup pfSense VM
+        uses: ./.github/actions/setup_vm
+        id: setup_vm
+        with:
+          name: ${{ matrix.PFSENSE_VERSION }}
+          snapshot: initial
+          domain: actions.pfrest.org
+          wait_time: 5
+
+      - name: Configure pfSense VM
         run: |
-          /usr/local/bin/VBoxManage controlvm ${{ matrix.PFSENSE_VERSION }} poweroff || true
-          /usr/local/bin/VBoxManage snapshot ${{ matrix.PFSENSE_VERSION }} restore initial
-          /usr/local/bin/VBoxManage startvm ${{ matrix.PFSENSE_VERSION }} --type headless
-          sleep 5
+          # Enable SSH and set up SSH keys
+          pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c 'pfSsh.php playback enablesshd' -k
+          pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "mkdir /root/.ssh/ && echo $(cat ~/.ssh/id_rsa.pub) > /root/.ssh/authorized_keys" -k
+          
+          # Ensure time is in sync
+          pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "pkill ntpd" -k
+          pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "ntpdate pool.ntp.org" -k
+          pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "service ntpd start" -k
+          
+          # Stop local Unbound so remote DNS resolution works
+            pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "pfSsh.php playback svc stop unbound" -k
 
       # This is only necessary until GitHub Actions allows an easier way to get a URL to download the artifact within pfSense
       - name: Copy pfSense-pkg-saml2-auth build to pfSense
-        run: |
-          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org -u admin -p pfsense -c 'pfSsh.php playback enablesshd' -k
-          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org -u admin -p pfsense -c "mkdir /root/.ssh/ && echo $(cat ~/.ssh/id_rsa.pub) > /root/.ssh/authorized_keys" -k
-          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org -u admin -p pfsense -c "pkill ntpd" -k
-          pfsense-vshell --host ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org -u admin -p pfsense -c "ntpdate pool.ntp.org" -k
-          scp -o StrictHostKeyChecking=no pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg admin@${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org:/tmp/
+        run: scp -o StrictHostKeyChecking=no pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg admin@${{ steps.setup_vm.outputs.fqdn }}:/tmp/
 
       - name: Install pfSense-pkg-saml2-auth on pfSense
         run: |
-          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org "pkg -C /dev/null add /tmp/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg"
+          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ steps.setup_vm.outputs.fqdn }} "pkg -C /dev/null add /tmp/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg"
           sleep 5
 
-      - name: Run pfSense-pkg-saml2-auth tests
+      - name: Run pfSense-pkg-saml2-auth unit tests
         run: |
-          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org 'pfsense-saml2 runtests'
+          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ steps.setup_vm.outputs.fqdn }} 'pfsense-saml2 runtests'
 
       - name: Run pfSense-pkg-saml2-auth e2e tests
         env:
-          SP_ENTITY_ID: https://${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org:443/saml2_auth/sso/metadata/
-          SP_ACS_LOCATION: https://${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org:443/saml2_auth/sso/acs/
+          SP_ENTITY_ID: https://${{ steps.setup_vm.outputs.fqdn }}/saml2_auth/sso/metadata/
+          SP_ACS_LOCATION: https://${{ steps.setup_vm.outputs.fqdn }}/saml2_auth/sso/acs/
           PFSENSE_PKG_SAML2_AUTH_IDP_HOST: mock-saml2-idp.actions.pfrest.org
-          PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ matrix.PFSENSE_VERSION }}.actions.pfrest.org
+          PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ steps.setup_vm.outputs.fqdn }}
           PFSENSE_PKG_SAML2_AUTH_PFSENSE_RESTAPI_PKG_URL: ${{ matrix.PFSENSE_RESTAPI_PKG_URL }}
         run: |
           docker-compose -f tests/docker-compose.yml up -d
@@ -114,9 +129,11 @@ jobs:
 
       - name: Teardown pfSense VM
         if: "${{ always() }}"
-        run: |
-          /usr/local/bin/VBoxManage controlvm ${{ matrix.PFSENSE_VERSION }} poweroff || true
-          /usr/local/bin/VBoxManage snapshot ${{ matrix.PFSENSE_VERSION }} restore initial
-          docker-compose -f tests/docker-compose.yml down
-          docker-compose -f tests/docker-compose.yml rm -f
-          docker volume prune -f
+        uses: ./.github/actions/teardown_vm
+        with:
+          name: ${{ matrix.PFSENSE_VERSION }}
+          snapshot: initial
+
+      - name: Teardown Docker
+        if: "${{ always() }}"
+        run: docker-compose -f tests/docker-compose.yml down --rmi all --remove-orphans

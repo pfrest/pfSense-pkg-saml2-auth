@@ -1,3 +1,4 @@
+"""Module containing a helper client class to interact with pfSense instances"""
 from tests.helpers.params import Params
 
 import json
@@ -22,6 +23,7 @@ class PfSenseClient:
     """
 
     def __init__(self) -> None:
+        """Initializes the PfSenseClient with parameters from environment variables"""
         # Load test parameters from environment variables
         params = Params()
 
@@ -89,6 +91,7 @@ class PfSenseClient:
             auth=(self.username, self.password),
             headers={"Content-Type": "application/json", "Accept": "application/json"},
             verify=False,
+            timeout=30,
             json={"name": username, "password": password, "priv": privileges},
         )
 
@@ -111,6 +114,7 @@ class PfSenseClient:
             url=f"{self.scheme}://{self.host}:{self.port}/api/v2/user?id={user_id}",
             auth=(self.username, self.password),
             verify=False,
+            timeout=30,
             headers={
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Accept": "application/json",
@@ -138,6 +142,7 @@ class PfSenseClient:
             auth=(self.username, self.password),
             headers={"Content-Type": "application/json", "Accept": "application/json"},
             verify=False,
+            timeout=30,
             json={"name": name, "priv": privileges},
         )
 
@@ -160,6 +165,7 @@ class PfSenseClient:
             url=f"{self.scheme}://{self.host}:{self.port}/api/v2/user/group?id={group_id}",
             auth=(self.username, self.password),
             verify=False,
+            timeout=30,
             headers={
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Accept": "application/json",

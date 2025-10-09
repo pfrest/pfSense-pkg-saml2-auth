@@ -1,3 +1,4 @@
+"""Parameters used to describe the pfSense and IdP test environment."""
 import os
 import requests
 
@@ -40,9 +41,7 @@ class Params:
         self.pfsense_scheme = os.environ.get(
             "PFSENSE_PKG_SAML2_AUTH_PFSENSE_SCHEME", "https"
         )
-        self.pfsense_url = (
-            f"{self.pfsense_scheme}://{self.pfsense_host}:{self.pfsense_port}"
-        )
+        self.pfsense_url = f"{self.pfsense_scheme}://{self.pfsense_host}"
         self.pfsense_restapi_pkg_url = os.environ.get(
             "PFSENSE_PKG_SAML2_AUTH_PFSENSE_RESTAPI_PKG_URL"
         )
