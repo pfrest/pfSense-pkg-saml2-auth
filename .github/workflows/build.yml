@@ -128,13 +128,13 @@ jobs:
           sleep 10
           docker compose -f tests/docker-compose.yml exec -T tests pytest --pyargs tests.e2e   
 
-      - name: Teardown pfSense VM
-        if: "${{ always() }}"
-        uses: ./.github/actions/teardown_vm
-        with:
-          name: ${{ matrix.PFSENSE_VERSION }}
-          snapshot: initial
-
-      - name: Teardown Docker
-        if: "${{ always() }}"
-        run: docker compose -f tests/docker-compose.yml down --rmi all --remove-orphans
+#      - name: Teardown pfSense VM
+#        if: "${{ always() }}"
+#        uses: ./.github/actions/teardown_vm
+#        with:
+#          name: ${{ matrix.PFSENSE_VERSION }}
+#          snapshot: initial
+#
+#      - name: Teardown Docker
+#        if: "${{ always() }}"
+#        run: docker compose -f tests/docker-compose.yml down --rmi all --remove-orphans
