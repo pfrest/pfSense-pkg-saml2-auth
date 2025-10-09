@@ -2,6 +2,7 @@
 from tests.helpers.params import Params
 
 import json
+import time
 
 import pfsense_vshell
 import requests
@@ -75,6 +76,7 @@ class PfSenseClient:
         # Installing the REST API causes a web server reload which drops the vshell, catch accordingly.
         try:
             self.client.run_command(f"pkg-static add {self.restapi_pkg_url}")
+            time.sleep(5)
         except pfsense_vshell.PFError as exc:
             pass
 
