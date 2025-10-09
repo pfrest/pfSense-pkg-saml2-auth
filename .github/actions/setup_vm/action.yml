@@ -22,7 +22,7 @@ inputs:
 outputs:
   fqdn:
     description: The FQDN of the VM that was started.
-    value: ${{ steps.generate_change_log.outputs.full_change_log }}
+    value: ${{ steps.variables.outputs.fqdn }}
 
 runs:
   using: composite
@@ -37,5 +37,6 @@ runs:
 
     - name: Export output variables
       shell: sh
+      id: variables
       run: |
         echo "fqdn=${{ inputs.name }}.${{ inputs.domain }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
