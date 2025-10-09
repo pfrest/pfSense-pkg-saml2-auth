@@ -77,8 +77,9 @@ class PfSenseClient:
         try:
             self.client.run_command(f"pkg-static add {self.restapi_pkg_url}")
         except pfsense_vshell.PFError as exc:
-            time.sleep(5)
             pass
+        time.sleep(5)
+
 
     def add_user(self, username: str, password: str, privileges: list[str]) -> dict:
         """
