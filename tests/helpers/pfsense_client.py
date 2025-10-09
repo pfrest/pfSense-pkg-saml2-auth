@@ -72,7 +72,11 @@ class PfSenseClient:
         """
         Installs the pfSense REST API package if not already installed
         """
-        self.client.run_command(f"pkg-static add {self.restapi_pkg_url}")
+        # Installing the REST API causes a web server reload which drops the vshell, catch accordingly.
+        try:
+            self.client.run_command(f"pkg-static add {self.restapi_pkg_url}")
+        except pfsense_vshell.PFError as exc:
+            pass
 
     def add_user(self, username: str, password: str, privileges: list[str]) -> dict:
         """
