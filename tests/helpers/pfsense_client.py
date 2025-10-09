@@ -18,7 +18,6 @@ class PfSenseClient:
         password (str): The password for authentication
         port (int): The port number for the pfSense instance
         scheme (str): The URL scheme (http or https)
-        restapi_pkg_url (str): The URL to the pfSense REST API package
         url (str): The base URL for the pfSense instance
         client (pfsense_vshell.PFClient): An instance of PFClient for executing commands on pfSense
     """
@@ -34,7 +33,6 @@ class PfSenseClient:
         self.password = params.pfsense_password
         self.port = params.pfsense_port
         self.scheme = params.pfsense_scheme
-        self.restapi_pkg_url = params.pfsense_restapi_pkg_url
         self.url = params.pfsense_url
         self.client = pfsense_vshell.PFClient(
             host=self.host,
@@ -68,17 +66,6 @@ class PfSenseClient:
             str: The output of the command
         """
         return self.client.run_command(command)
-
-    def install_restapi_pkg(self) -> None:
-        """
-        Installs the pfSense REST API package if not already installed
-        """
-        # Installing the REST API causes a web server reload which drops the vshell, catch accordingly.
-        try:
-            self.client.run_command(f"pkg-static add {self.restapi_pkg_url}")
-        except pfsense_vshell.PFError as exc:
-            pass
-        time.sleep(5)
 
 
     def add_user(self, username: str, password: str, privileges: list[str]) -> dict:

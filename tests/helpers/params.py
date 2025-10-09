@@ -14,7 +14,6 @@ class Params:
         pfsense_port (int): The port number for the pfSense instance.
         pfsense_scheme (str): The URL scheme (http or https) for the pfSense instance.
         pfsense_url (str): The complete base URL for the pfSense instance.
-        pfsense_restapi_pkg_url (str): The URL to the pfSense REST API package download.
         idp_host (str): The hostname or IP address of the IdP instance to test against.
         idp_port (int): The port number for the IdP instance.
         idp_scheme (str): The URL scheme (http or https) for the IdP instance.
@@ -42,9 +41,6 @@ class Params:
             "PFSENSE_PKG_SAML2_AUTH_PFSENSE_SCHEME", "https"
         )
         self.pfsense_url = f"{self.pfsense_scheme}://{self.pfsense_host}"
-        self.pfsense_restapi_pkg_url = os.environ.get(
-            "PFSENSE_PKG_SAML2_AUTH_PFSENSE_RESTAPI_PKG_URL"
-        )
         self.idp_host = os.environ["PFSENSE_PKG_SAML2_AUTH_IDP_HOST"]
         self.idp_port = os.environ.get("PFSENSE_PKG_SAML2_AUTH_IDP_PORT", 8443)
         self.idp_scheme = os.environ.get("PFSENSE_PKG_SAML2_AUTH_IDP_SCHEME", "https")

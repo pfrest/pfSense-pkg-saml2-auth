@@ -98,10 +98,9 @@ jobs:
           # Ensure time is in sync
           pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "pkill ntpd" -k
           pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "ntpdate pool.ntp.org" -k
-          pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "service ntpd start" -k
           
           # Stop local Unbound so remote DNS resolution works
-            pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "pfSsh.php playback svc stop unbound" -k
+          pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "pfSsh.php playback svc stop unbound" -k
 
       # This is only necessary until GitHub Actions allows an easier way to get a URL to download the artifact within pfSense
       - name: Copy pfSense-pkg-saml2-auth build to pfSense
@@ -110,6 +109,7 @@ jobs:
       - name: Install pfSense-pkg-saml2-auth on pfSense
         run: |
           ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ steps.setup_vm.outputs.fqdn }} "pkg -C /dev/null add /tmp/pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg"
+          ssh -o StrictHostKeyChecking=no -o LogLevel=quiet admin@${{ steps.setup_vm.outputs.fqdn }} 'pkg add ${{ matrix.PFSENSE_RESTAPI_PKG_URL }}'
           sleep 5
 
       - name: Run pfSense-pkg-saml2-auth unit tests
@@ -122,18 +122,17 @@ jobs:
           SP_ACS_LOCATION: https://${{ steps.setup_vm.outputs.fqdn }}/saml2_auth/sso/acs/
           PFSENSE_PKG_SAML2_AUTH_IDP_HOST: mock-saml2-idp.actions.pfrest.org
           PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ steps.setup_vm.outputs.fqdn }}
-          PFSENSE_PKG_SAML2_AUTH_PFSENSE_RESTAPI_PKG_URL: ${{ matrix.PFSENSE_RESTAPI_PKG_URL }}
         run: |
           docker-compose -f tests/docker-compose.yml up -d && sleep 5
-#          docker compose -f tests/docker-compose.yml exec -T tests pytest --pyargs tests.e2e
-#
-#      - name: Teardown pfSense VM
-#        if: "${{ always() }}"
-#        uses: ./.github/actions/teardown_vm
-#        with:
-#          name: ${{ matrix.PFSENSE_VERSION }}
-#          snapshot: initial
-#
-#      - name: Teardown Docker
-#        if: "${{ always() }}"
-#        run: docker compose -f tests/docker-compose.yml down --rmi all --remove-orphans
+          docker compose -f tests/docker-compose.yml exec -T tests pytest --pyargs tests.e2e
+
+      - name: Teardown pfSense VM
+        if: "${{ always() }}"
+        uses: ./.github/actions/teardown_vm
+        with:
+          name: ${{ matrix.PFSENSE_VERSION }}
+          snapshot: initial
+
+      - name: Teardown Docker
+        if: "${{ always() }}"
+        run: docker compose -f tests/docker-compose.yml down --rmi all --remove-orphans

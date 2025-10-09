@@ -128,7 +128,6 @@ def pfsense_client() -> PfSenseClient:
     Pytest fixture to provide a PfSenseClient instance for tests
     """
     client = PfSenseClient()
-    client.install_restapi_pkg()
     return client
 
 
