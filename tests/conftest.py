@@ -1,4 +1,5 @@
 """Pytest configuration and fixtures for SAML2 authentication tests with pfSense"""
+
 import pytest
 from playwright.sync_api import Browser, sync_playwright
 from tests.helpers import PfSenseClient, Params, Saml2Config

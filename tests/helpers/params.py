@@ -1,4 +1,5 @@
 """Parameters used to describe the pfSense and IdP test environment."""
+
 import os
 import requests
 

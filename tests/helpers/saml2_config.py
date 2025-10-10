@@ -1,4 +1,5 @@
 """Helper class for managing SAML2 configuration in pfSense."""
+
 import base64
 import json
 

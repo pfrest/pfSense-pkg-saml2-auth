@@ -1,4 +1,5 @@
 """Module containing a helper client class to interact with pfSense instances"""
+
 from tests.helpers.params import Params
 
 import json
@@ -66,7 +67,6 @@ class PfSenseClient:
             str: The output of the command
         """
         return self.client.run_command(command)
-
 
     def add_user(self, username: str, password: str, privileges: list[str]) -> dict:
         """
