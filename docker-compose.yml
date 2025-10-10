@@ -29,7 +29,7 @@ services:
     networks:
       - container_net
     volumes:
-      - "../tests/:/app/tests/"
+      - "./tests/:/app/tests/"
     depends_on:
       - idp
     environment:

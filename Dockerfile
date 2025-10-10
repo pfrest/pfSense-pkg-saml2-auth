@@ -1,6 +1,8 @@
 FROM python:3.13-slim
 
-COPY . /app/
+COPY ./tests /app/
+COPY ./requirements-dev.txt /app/
+COPY ./setup.py /app/
 
 # Install necessary dependencies
 RUN python3 -m pip install /app/
