@@ -95,7 +95,7 @@ jobs:
           # Enable SSH and set up SSH keys
           pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c 'pfSsh.php playback enablesshd' -k
           pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "mkdir /root/.ssh/ && echo $(cat ~/.ssh/id_rsa.pub) > /root/.ssh/authorized_keys" -k
-          
+
           # Ensure time is in sync
           pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "pkill ntpd" -k
           pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "ntpdate pool.ntp.org" -k
@@ -125,7 +125,7 @@ jobs:
           curl -k -u admin:pfsense -X PATCH https://${{ steps.setup_vm.outputs.fqdn }}/api/v2/system/dns \
           -H "Content-Type: application/json" \
           -d '{"dnslocalhost": "remote"}'
-          
+
           # Now start the Docker containers and run the tests
           docker-compose -f tests/docker-compose.yml up -d > /dev/null
           sleep 3
