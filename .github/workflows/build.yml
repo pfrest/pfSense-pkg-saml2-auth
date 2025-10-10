@@ -121,8 +121,14 @@ jobs:
           PFSENSE_PKG_SAML2_AUTH_IDP_HOST: mock-saml2-idp.actions.pfrest.org
           PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ steps.setup_vm.outputs.fqdn }}
         run: |
-          docker-compose -f tests/docker-compose.yml up -d && sleep 3
-          pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "pfSsh.php playback svc stop unbound" -k
+          # First, disable local DNS resolution. We need to use upstream DNS servers to resolve the mock IdP host.
+          curl -k -u admin:pfsense -X PATCH https://${{ steps.setup_vm.outputs.fqdn }}/api/v2/system/dns \
+          -H "Content-Type: application/json" \
+          -d '{"dnslocalhost": "remote"}'
+          
+          # Now start the Docker containers and run the tests
+          docker-compose -f tests/docker-compose.yml up -d > /dev/null
+          sleep 3
           docker compose -f tests/docker-compose.yml exec -T tests pytest --pyargs tests.e2e
 
       - name: Teardown pfSense VM
