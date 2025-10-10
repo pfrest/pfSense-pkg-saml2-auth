@@ -121,7 +121,7 @@ jobs:
           PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ steps.setup_vm.outputs.fqdn }}
         run: |
           pfsense-vshell --host ${{ steps.setup_vm.outputs.fqdn }} -u admin -p pfsense -c "pfSsh.php playback svc stop unbound" -k
-          docker-compose -f tests/docker-compose.yml up -d && sleep 5
+          docker-compose -f tests/docker-compose.yml up -d && sleep 3
           docker compose -f tests/docker-compose.yml exec -T tests pytest --pyargs tests.e2e
 
       - name: Teardown pfSense VM
