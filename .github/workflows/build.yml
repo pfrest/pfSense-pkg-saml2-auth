@@ -46,7 +46,7 @@ jobs:
       - name: Push image build
         uses: docker/build-push-action@v6.18.0
         with:
-          context: ./tests
+          context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -160,8 +160,8 @@ jobs:
           PFSENSE_PKG_SAML2_AUTH_IDP_HOST: mock-saml2-idp.actions.pfrest.org
           PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: ${{ steps.setup_vm.outputs.fqdn }}
         run: |
-          docker-compose -f tests/docker-compose.yml up -d && sleep 3
-          docker compose -f tests/docker-compose.yml exec -T tests pytest --pyargs tests.e2e
+          docker-compose -f docker-compose.yml up -d && sleep 3
+          docker compose -f docker-compose.yml exec -T tests pytest --pyargs tests.e2e
 
       - name: Teardown pfSense VM
         if: "${{ always() }}"
@@ -172,4 +172,4 @@ jobs:
 
       - name: Teardown Docker
         if: "${{ always() }}"
-        run: docker compose -f tests/docker-compose.yml down --rmi all --remove-orphans
+        run: docker compose -f docker-compose.yml down --rmi all --remove-orphans
