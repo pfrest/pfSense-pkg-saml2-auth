@@ -1,6 +1,6 @@
 FROM python:3.13-slim
 
-COPY ./tests /app/
+COPY ./tests /app/tests
 COPY ./requirements-dev.txt /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
