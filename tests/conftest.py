@@ -2,7 +2,12 @@
 
 import pytest
 from playwright.sync_api import Browser, sync_playwright
-from tests.helpers import PfSenseClient, Params, Saml2Config
+
+from tests.helpers.params import Params
+from tests.helpers.pfsense_client import PfSenseClient
+from tests.helpers.saml2_config import Saml2Config
+
+# pylint: disable=redefined-outer-name
 
 
 @pytest.fixture(scope="session")

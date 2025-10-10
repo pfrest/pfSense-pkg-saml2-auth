@@ -3,12 +3,14 @@
 import base64
 import json
 
-from tests.helpers import PfSenseClient, Params
+from tests.helpers.params import Params
+from tests.helpers.pfsense_client import PfSenseClient
 
 
 class Saml2Config:
     """Helper class for managing SAML2 configuration in pfSense."""
 
+    # pylint: disable=too-many-instance-attributes
     enable: bool
     strip_username: bool
     debug_mode: bool

@@ -1,14 +1,9 @@
 """Tests for ensuring SSO logins map to correct privileges based on matching local users."""
 
-from playwright.sync_api import Browser
-from tests.helpers import Params
-from tests.conftest import (
-    params,
-    chromium_browser,
-    pfsense_user,
-    saml2_config_no_groups,
-)
 import pytest
+from playwright.sync_api import Browser
+
+from tests.helpers import Params
 
 
 @pytest.mark.usefixtures("pfsense_user")

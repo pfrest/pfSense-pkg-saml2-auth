@@ -1,12 +1,11 @@
 """Module containing a helper client class to interact with pfSense instances"""
 
-from tests.helpers.params import Params
-
 import json
-import time
 
 import pfsense_vshell
 import requests
+
+from tests.helpers.params import Params
 
 
 class PfSenseClient:

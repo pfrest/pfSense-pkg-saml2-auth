@@ -1,6 +1,7 @@
 """Parameters used to describe the pfSense and IdP test environment."""
 
 import os
+
 import requests
 
 
@@ -26,8 +27,9 @@ class Params:
         idp_x509_cert (str): The x509 certificate data for the IdP.
         idp_expected_nameid (str): The expected NameID value in SAML assertions from the IdP.
         idp_expected_group (list[str]): A list of expected user groups in SAML assertions from the IdP.
-
     """
+
+    # pylint: disable=too-many-instance-attributes,too-few-public-methods
 
     def __init__(self) -> None:
         self.pfsense_host = os.environ["PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST"]
@@ -70,6 +72,8 @@ class Params:
         Returns:
             str: The x509 certificate data from the IdP.
         """
-        resp = requests.get(f"{self.idp_url}/api/settings.php", verify=False)
+        resp = requests.get(
+            f"{self.idp_url}/api/settings.php", verify=False, timeout=15
+        )
         resp.raise_for_status()
         return resp.json()["idp_cert"]

@@ -1,15 +1,9 @@
 """Tests for ensuring basic SSO login functionality works."""
 
-from playwright.sync_api import Browser
-from tests.helpers import Params
-from tests.conftest import (
-    params,
-    chromium_browser,
-    pfsense_user_group,
-    saml2_config_manual,
-    saml2_config_auto,
-)
 import pytest
+from playwright.sync_api import Browser
+
+from tests.helpers import Params
 
 
 @pytest.mark.usefixtures("pfsense_user_group")
