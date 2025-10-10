@@ -3,7 +3,7 @@
 import pytest
 from playwright.sync_api import Browser
 
-from tests.helpers import Params
+from tests.helpers.params import Params
 
 
 @pytest.mark.usefixtures("pfsense_user_group")
