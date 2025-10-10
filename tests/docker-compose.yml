@@ -25,7 +25,10 @@ services:
       - "8443:8443"
 
   tests:
-    image: "ghcr.io/pfrest/pfsense-pkg-saml2-auth-tests:${PFSENSE_PKG_SAML2_AUTH_IMAGE_TAG:-latest}"
+    image: pfsense-pkg-saml2-auth
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile
     networks:
       - container_net
     volumes:
