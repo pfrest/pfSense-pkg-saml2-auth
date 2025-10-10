@@ -52,8 +52,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
   build_pkg:
+    name: Build package (${ matrix.FREEBSD_VERSION })
     runs-on: self-hosted
-
     strategy:
       matrix:
         include:
@@ -92,6 +92,7 @@ jobs:
           path: pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg
 
   check_tests:
+    name: check_tests (${ matrix.PFSENSE_VERSION })
     runs-on: self-hosted
     needs: [build_tests_image, build_pkg]
 
