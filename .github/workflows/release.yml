@@ -1,57 +1,62 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  release:
+    types: [published]
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency: build
 
 jobs:
-  release_build:
+  release_pkg:
     runs-on: self-hosted
 
     strategy:
       matrix:
         include:
-          - freebsd_version: FreeBSD-14.0-CURRENT
-            pfsense_version: 2.7
-          - freebsd_version: FreeBSD-15.0-CURRENT
-            pfsense_version: 2.8
+          - FREEBSD_VERSION: FreeBSD-14.0-CURRENT
+            PFSENSE_VERSION: 2.7
+          - FREEBSD_VERSION: FreeBSD-15.0-CURRENT
+            PFSENSE_VERSION: 2.8
 
     steps:
       - uses: actions/checkout@v5
+        
       - name: Setup FreeBSD build VM
-        run: |
-          /usr/local/bin/VBoxManage controlvm ${{ matrix.freebsd_version }} poweroff || true
-          /usr/local/bin/VBoxManage snapshot ${{ matrix.freebsd_version }} restore initial
-          /usr/local/bin/VBoxManage startvm ${{ matrix.freebsd_version }} --type headless
-          sleep 5
+        uses: ./.github/actions/setup_vm
+        id: setup_vm
+        with:
+          name: ${{ matrix.FREEBSD_VERSION }}
+          snapshot: initial
+          domain: actions.pfrest.org
+          wait_time: 5
 
       - name: Build pfSense-pkg-saml2-auth on FreeBSD
         run: |
-          /usr/bin/ssh -o StrictHostKeyChecking=no ${{ matrix.freebsd_version }}.actions.pfrest.org 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
-          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.freebsd_version }}.actions.pfrest.org --branch ${{ github.sha }} --tag ${{ github.ref_name }} --filename pfSense-${{ matrix.pfsense_version }}-pkg-saml2-auth.pkg
+          /usr/bin/ssh -o StrictHostKeyChecking=no ${{ matrix.FREEBSD_VERSION }}.actions.pfrest.org 'sudo pkill ntpd || true && sudo ntpdate pool.ntp.org || true'
+          /usr/local/bin/python3 tools/make_package.py --host ${{ matrix.FREEBSD_VERSION }}.actions.pfrest.org --branch ${{ github.sha }} --tag ${{ github.ref_name }} --filename pfSense-${{ matrix.PFSENSE_VERSION }}-pkg-saml2-auth.pkg
 
       - name: Teardown FreeBSD build VM
         if: "${{ always() }}"
-        run: |
-          /usr/local/bin/VBoxManage controlvm ${{ matrix.freebsd_version }} poweroff || true
-          /usr/local/bin/VBoxManage snapshot ${{matrix.freebsd_version}} restore initial
+        uses: ./.github/actions/teardown_vm
+        with:
+          name: ${{ matrix.FREEBSD_VERSION }}
+          snapshot: initial
 
       - name: Release package
         uses: softprops/action-gh-release@v2
         with:
-          files: pfSense-${{ matrix.pfsense_version }}-pkg-saml2-auth.pkg
+          files: pfSense-${{ matrix.PFSENSE_VERSION }}-pkg-saml2-auth.pkg
 
   release_docs:
     runs-on: ubuntu-latest
     if: ${{ !github.event.release.prerelease }}
     needs:
-      - release_build
+      - release_pkg
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
