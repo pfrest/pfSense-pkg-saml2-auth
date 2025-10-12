@@ -11,7 +11,7 @@ permissions:
 concurrency: build
 
 jobs:
-  build:
+  release_build:
     runs-on: self-hosted
 
     strategy:
@@ -42,7 +42,52 @@ jobs:
           /usr/local/bin/VBoxManage controlvm ${{ matrix.freebsd_version }} poweroff || true
           /usr/local/bin/VBoxManage snapshot ${{matrix.freebsd_version}} restore initial
 
-      - name: Release
+      - name: Release package
         uses: softprops/action-gh-release@v2
         with:
           files: pfSense-${{ matrix.pfsense_version }}-pkg-saml2-auth.pkg
+
+  release_docs:
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.release.prerelease }}
+    needs:
+      - release_build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5.0.0
+
+      - name: Make website directory
+        run: mkdir ./www
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Build mkdocs site
+        run: |
+          python3 -m pip install -r ./requirements-dev.txt
+          python3 -m mkdocs build
+          mv ./site/* ./www/
+
+      - name: Build PHP reference documentation
+        run: |
+          mkdir ./www/php-docs
+          wget https://phpdoc.org/phpDocumentor.phar
+          chmod +x phpDocumentor.phar
+          ./phpDocumentor.phar
+          mv ./.phpdoc/build/* ./www/php-docs/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4.0.0
+        with:
+          path: "./www"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5
