@@ -92,7 +92,7 @@ pkg-static delete -y pfSense-pkg-saml2-auth
 ```
 
 Please note that uninstalling the package will not remove any applicable cache or log files. If you want to remove
-these files as well, you can run the following commands as well:
+these files as well, you can run the following additional commands:
 
 ```shell
 rm -rf /var/cache/pfSense-pkg-saml2-auth

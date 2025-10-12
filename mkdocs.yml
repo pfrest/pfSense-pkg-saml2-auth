@@ -4,6 +4,7 @@ nav:
   - General:
       - Home: index.md
       - Installation: INSTALLATION.md
+      - Configuration: CONFIGURATION.md
       - Privilege Mapping:
           - Overview: PRIVILEGE_MAPPING.md
           - By Group: PRIVILEGE_MAPPING_BY_GROUP.md
@@ -14,6 +15,9 @@ nav:
           - JumpCloud: idp/JUMPCLOUD.md
           - OneLogin: idp/ONELOGIN.md
       - FAQs: FAQS.md
+  - Advanced:
+      - Contributing: CONTRIBUTING.md
+      - Security: SECURITY.md
 theme:
   name: readthedocs
   features:
