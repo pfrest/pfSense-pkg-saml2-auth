@@ -97,7 +97,7 @@ including case sensitivity. Then assign the desired privileges to each group.
 ![pfsense_create_user_group](../img/pfsense/create_user_group.png)
 
 If you are using [user-based privilege mapping](../PRIVILEGE_MAPPING_BY_USER.md), navigate to
-**System > User Manager> Users** and create local users that match the usernames in Microsft Entry exactly. Assign the desired
+**System > User Manager> Users** and create local users that match the usernames in Microsoft Entra exactly. Assign the desired
 privileges to each user.
 
 ![pfsense_create_user](../img/pfsense/create_user.png)

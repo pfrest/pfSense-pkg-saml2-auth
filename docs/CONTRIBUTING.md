@@ -28,7 +28,7 @@ instructions [here](SECURITY.md).
     configuration, the issue most likely lies with the upstream toolkit. In that case, please report the issue directly 
     to the [OneLogin PHP-SAML repository](https://github.com/SAML-Toolkits/php-saml) rather than to this project so it 
     can be addressed upstream. Once the upstream issue is resolved, it will make its way back into this package through 
-    regular updates. These types of issues are welcome as [discussions](https://github.com/pfrest/pfSense-pkg-saml2-auth/discussions/new/choose).
+    regular updates. These types of issues are welcome as [discussions](https://github.com/pfrest/pfSense-pkg-saml2-auth/discussions/new/choose),
     however.
 
 ## Submitting Pull Requests

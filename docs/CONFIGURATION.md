@@ -11,7 +11,7 @@ After installing the package, you will have access to the configuration page in 
 
 **Internal name**: `enable`
 
-**Description**: Checks this box to enable SAML2 authentication. If check and SAML2 is configured correctly, the login page will
+**Description**: Check this box to enable SAML2 authentication. If check and SAML2 is configured correctly, the login page will
 show the 'Sign In with SSO' option below the standard login form. If unchecked, SAML2 authentication will be unavailable.
 
 ## Filter Email Usernames
@@ -31,7 +31,7 @@ pfSense does not officially support usernames with the `@` character.
 **Internal name**: `debug_mode`
 
 **Description**: Enabling this option will turn on debug logging and tools to help troubleshoot issues with SAML2 authentication. When
-enabled, additional, verbose logs will be written to the package log under **Status** > **System Logs** > **Packages** > **SAML2 **. 
+enabled, additional, verbose logs will be written to the package log under **Status** > **System Logs** > **Packages** > **SAML2**. 
 
 Additionally, the /saml2_auth/sso/session/ endpoint will become available which will display the current SAML2 attributes
 and session information for the logged-in user. This endpoint is useful for debugging and verifying that the attributes 
@@ -56,7 +56,7 @@ If this field is left blank, you will need to manually enter IdP information in 
 - [Identity Provider x509 Certificate](#identity-provider-x509-certificate)
 
 !!! Important
-    pfSense **must** has access to your IdP's metadata URL. If pfSense does not allow outbound connections to your IdP 
+    pfSense **must** have access to your IdP's metadata URL. If pfSense does not allow outbound connections to your IdP 
     metadata URL, the package will not be able to fetch the metadata and SSO will fail.
 
 ## Identity Provider Entity ID

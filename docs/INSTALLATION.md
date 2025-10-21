@@ -27,7 +27,7 @@ show updates available for your version of pfSense.
 
 ### Using the Command Line Interface
 
-After the initial installation, the `pfsense-saml2` command line too is available to manage various aspects of the package.
+After the initial installation, the `pfsense-saml2` command line tool is available to manage various aspects of the package.
 To update the package to the latest version available for your version of pfSense, simply run:
 
 ```shell
@@ -61,7 +61,7 @@ available for your version of pfSense.
 
 ### Using the Command Line Interface
 
-After the initial installation, the `pfsense-saml2` command line too is available to manage various aspects of the package.
+After the initial installation, the `pfsense-saml2` command line tool is available to manage various aspects of the package.
 To revert the package to a specific version, simply run:
 
 ```shell

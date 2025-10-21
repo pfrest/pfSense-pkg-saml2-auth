@@ -26,8 +26,8 @@ Give your application a name (e.g., "pfSense") and optionally upload a logo. Cli
 On the next screen, you will configure the SAML settings to direct Okta to your pfSense instance. Set the following
 fields:
 
-- **Single sign-on URL**: `https://<PFSENSE IP OR FQDN>/saml_auth/sso/acs/`
-- **Audience URI (SP Entity ID)**: `https://<PFSENSE IP OR FQDN>/saml_auth/sso/metadata/`
+- **Single sign-on URL**: `https://<PFSENSE IP OR FQDN>/saml2_auth/sso/acs/`
+- **Audience URI (SP Entity ID)**: `https://<PFSENSE IP OR FQDN>/saml2_auth/sso/metadata/`
 
 ![okta_create_app_settings](../img/okta/create_app_settings.png)
 
