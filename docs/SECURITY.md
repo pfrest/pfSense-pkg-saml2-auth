@@ -8,10 +8,9 @@ This document outlines the process for reporting security vulnerabilities and ho
 Should you discover a vulnerability in the pfSense SAML2 authentication code, please report the issue in one of the following ways:
 
 1. Submit a [private vulnerability report](https://github.com/pfrest/pfSense-pkg-saml2-auth/security/advisories/new).
-2. Send an email to a package [maintainer](index.md#maintainers).
+2. Email a package [maintainer](index.md#maintainers).
 3. Open a pull request with a fix for the vulnerability.
-4. As a last resort, you may open a public issue, but please be aware that this is not the preferred method for 
-5. reporting security vulnerabilities.
+4. As a last resort, you may open a public issue.
 
 When reporting a vulnerability, please include the following information:
 

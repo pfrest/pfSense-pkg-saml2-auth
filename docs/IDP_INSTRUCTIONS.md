@@ -6,6 +6,5 @@ IdPs. These are written and maintained by community members and therefor are not
 up-to-date. If have this package working with an IdP that is not listed here, please consider contributing a guide to 
 the repository by opening a pull request!
 
-- [JumpCloud](idp/JUMPCLOUD.md)
+- [Microsoft Entra](idp/MSENTRA.md)
 - [Okta](idp/OKTA.md)
-- [OneLogin](idp/ONELOGIN.md)

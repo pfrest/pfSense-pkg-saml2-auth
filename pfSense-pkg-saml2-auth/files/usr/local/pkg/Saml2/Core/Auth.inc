@@ -24,7 +24,8 @@ use OneLogin\Saml2\Settings;
 use OneLogin\Saml2\Utils;
 
 /**
- * Defines a class container our SAML2 handlers.
+ * Defines the main SAML2 authentication class. This class is responsible for handling all SAML2 related processes,
+ * including initiating SSO, processing ACS responses, and generating SP metadata.
  */
 class Auth {
     const SP_METADATA_URL = '/saml2_auth/sso/metadata/';

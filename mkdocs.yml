@@ -11,9 +11,8 @@ nav:
           - By User: PRIVILEGE_MAPPING_BY_USER.md
       - IdP Instructions:
           - Overview: IDP_INSTRUCTIONS.md
+          - Microsoft Entra: idp/MSENTRA.md
           - Okta: idp/OKTA.md
-          - JumpCloud: idp/JUMPCLOUD.md
-          - OneLogin: idp/ONELOGIN.md
       - FAQs: FAQS.md
   - Advanced:
       - Contributing: CONTRIBUTING.md

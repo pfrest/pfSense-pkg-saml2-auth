@@ -7,7 +7,7 @@ can greatly simplify user management and onboarding/offboarding. Your IdP must s
 in the SAML assertion for this method to work.
 
 !!! Important
-    In the event that the IdP does not provide any group memberships for a the user **and** the user has a local pfSense
+    In the event that the IdP does not provide any group memberships for the user **and** the user has a local pfSense
     user, pfSense will automatically fall back to inheriting privileges from the user's local account if one exists. 
     This can lead to discrepancies in user permissions if the local account has different privileges than those 
     intended by your IdP.
@@ -28,3 +28,7 @@ Before configuring privilege mapping by group, ensure that you have already done
 3. Navigate to **System > SAML2 > Settings** and set the **IdP Groups Attribute** field to the name of the attribute
    in the SAML assertion that contains the user's group memberships. This is often `groups`, `memberOf`, or similar, but
    can vary across different IdPs. Save the settings.
+
+!!! Note
+    Some IdPs may return groups by a different unique identifier, such as a group ID or email address. In such cases,
+    ensure that the group names in pfSense match the identifiers returned by your IdP.

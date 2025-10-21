@@ -21,7 +21,8 @@ use Saml2\Errors\ConfigError;
 use Saml2\Errors\ValidationError;
 
 /**
- * Defines the configuration class for the pfSense-pkg-saml2-auth package.
+ * Defines the configuration class for the pfSense-pkg-saml2-auth package. This class provides methods to load, save,
+ * validate, backup, and restore the package's configuration in the pfSense XML configuration file.
  */
 class Config {
     const BACKUP_FILE_PATH = '/var/cache/pfSense-pkg-saml2-auth/backup.json';
