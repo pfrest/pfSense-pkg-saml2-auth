@@ -6,6 +6,8 @@ fi
 # --- Constants ---
 PFSENSE_VERSION=$(/bin/cat /etc/version)
 PATCH_DIR="/usr/local/share/pfSense-pkg-saml2-auth/patches/default"
+V1_BACKUP_FILE="/usr/local/share/pfSense-pkg-saml2-auth/backup.json"
+V2_BACKUP_FILE="/var/cache/pfSense-pkg-saml2-auth/backup.json"
 
 # --- Functions ---
 # Function to apply a patch and handle errors
@@ -46,6 +48,12 @@ apply_patch /etc/inc/priv.inc "${PATCH_DIR}/priv.inc.patch"
 /bin/ln -s /usr/local/pkg/Saml2/manage.php /usr/local/bin/pfsense-saml2
 /bin/chmod +x /usr/local/pkg/Saml2/manage.php
 echo "done."
+
+# When a v1 backup exists and no v2 backup exists, migrate the v1 backup to v2 location
+if [ -f "${V1_BACKUP_FILE}" ] && [ ! -f "${V2_BACKUP_FILE}" ]
+then
+    /bin/cp "${V1_BACKUP_FILE}" "${V2_BACKUP_FILE}"
+fi
 
 # Restore previous SAML2 configuration
 /usr/local/bin/php -f /usr/local/pkg/Saml2/manage.php restore
