@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-        
+
       - name: Setup FreeBSD build VM
         uses: ./.github/actions/setup_vm
         id: setup_vm
