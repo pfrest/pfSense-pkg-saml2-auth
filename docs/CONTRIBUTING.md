@@ -256,7 +256,7 @@ different tools:
 ### Package Documentation (MkDocs)
 
 The primary documentation site for the project is built using [MkDocs](https://www.mkdocs.org) and is located at
-https://pfSense-pkg-saml2-auth.pfrest.org. This documentation is intended for administrators of the package and covers
+https://docs.pfrest.org/pfSense-pkg-saml2-auth/. This documentation is intended for administrators of the package and covers
 installation, configuration, and usage of the package. The MkDocs documentation is written in Markdown and is located
 in the [`docs/`](https://github.com/pfrest/pfSense-pkg-saml2-auth/tree/master/docs) directory of the repository. The 
 documentation is automatically built and deployed to GitHub Pages with each corresponding release of the package.
@@ -276,9 +276,9 @@ python3 -m mkdocs serve
 
 ### PHP Reference Documentation (phpDocumentor)
 
-The [PHP reference documentation](https://pfrest.org/php-docs/) for this project is generated using 
+The [PHP reference documentation](https://docs.pfrest.org/pfSense-pkg-saml2-auth/php-docs/) for this project is generated using 
 [PHPDocumentor](https://www.phpdoc.org). The PHP reference provides detailed documentation for all PHP classes, functions,
-script, etc. included in the package and is intended for those wishing to aide in development of the package. PHPDoc 
+script, etc. included in the package and is intended for those wishing to aid in development of the package. PHPDoc 
 looks at the PHPDoc comments in the project's PHP files and generates a static HTML site with the documentation. 
 The PHPDoc configuration file is located at `phpdoc.dist.xml`. There are two ways to generate the PHP documentation 
 and start a local development server to view the documentation:
@@ -313,5 +313,3 @@ php -S localhost:8000
 !!! Note
     This method requires you to have Docker installed and running on your system. If you do not have Docker installed, you can
     use the Phar method to generate the documentation.
-
-

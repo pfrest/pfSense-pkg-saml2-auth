@@ -17,6 +17,7 @@ nav:
   - Advanced:
       - Contributing: CONTRIBUTING.md
       - Security: SECURITY.md
+      - PHP Reference: https://docs.pfrest.org/pfSense-pkg-saml2-auth/php-docs/
 theme:
   name: readthedocs
   features:
