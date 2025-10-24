@@ -54,7 +54,7 @@ jobs:
 
   release_docs:
     runs-on: ubuntu-latest
-    if: ${{ !github.event.release.prerelease }}
+    # if: ${{ !github.event.release.prerelease }}
     needs:
       - release_pkg
     environment:

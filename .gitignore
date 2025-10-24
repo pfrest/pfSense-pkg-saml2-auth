@@ -7,6 +7,7 @@
 *.pkg
 *.egg-info/
 build/
+site/
 **/__pycache__/
 .pytest_cache
 .phpdoc
