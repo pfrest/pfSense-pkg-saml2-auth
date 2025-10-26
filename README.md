@@ -4,12 +4,12 @@
 [![Build](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/build.yml/badge.svg)](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/build.yml)
 [![Release](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/release.yml/badge.svg)](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/release.yml)
 
-`pfSense-pkg-saml2-auth` implements SAML2 authentication for the pfSense webConfigurator, enabling seamless integration 
-with modern identity providers (IdPs). This package integrates with pfSense's existing authentication system, allowing 
-administrators to leverage single sign-on (SSO) and robust multi-factor authentication (MFA) from their preferred IdP.
-This solution is ideal for meeting stringent security compliance requirements, such as PCI DSS, that mandate MFA for 
-administrative logins. Key benefits include centralized user management, simplified administrator onboarding, and a 
-significantly enhanced security posture for your firewall administration.
+`pfSense-pkg-saml2-auth` package implements SAML2 authentication support to the pfSense webConfigurator. This package 
+integrates with pfSense's existing authentication system, allowing administrators to leverage single sign-on (SSO) and 
+take advantage of the robust multi-factor authentication (MFA) options from their preferred Identity Provider (IdP). 
+This solution is ideal for meeting modern security compliance requirements, such as PCI DSS, that mandate MFA for 
+administrative logins. Key benefits include centralized user management, simplified administrator onboarding/offboarding, 
+and a significantly enhanced security posture for your firewall administration.
 
 ## Key Features
 

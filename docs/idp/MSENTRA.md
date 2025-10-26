@@ -1,6 +1,6 @@
-# Microsoft Entra
+# Microsoft Entra ID
 
-This guide will walk you through configuring pfSense to use Microsoft Entra for webConfigurator authentication via SAML 
+This guide will walk you through configuring pfSense to use Microsoft Entra ID for webConfigurator authentication via SAML 
 2.0. This allows your users to log into pfSense using Microsoft Entra, centralizing access and enabling features like MFA.
 
 ## Prerequisites
