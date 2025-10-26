@@ -204,7 +204,7 @@ function update_pkg(string|null $version = null): void {
     }
 
     # Install the new package
-    exec(PKG_STATIC_EXEC . " install -y $install_url", $output, $result_code);
+    exec(PKG_STATIC_EXEC . " add $install_url", $output, $result_code);
     if ($result_code !== 0) {
         throw new UpdateError('Failed to install package: ' . implode("\n", $output));
     }
