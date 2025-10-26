@@ -50,7 +50,7 @@ jobs:
           name: ${{ matrix.FREEBSD_VERSION }}
           snapshot: initial
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg
           path: pfSense-pkg-saml2-auth-${{ env.BUILD_VERSION }}-${{ matrix.FREEBSD_ID }}.pkg
