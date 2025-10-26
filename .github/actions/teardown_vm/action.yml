@@ -1,0 +1,22 @@
+name: Teardown VM
+description: |
+  Tears down a VM for testing pfREST projects. Note: This action is designed to be run on self-hosted runners with 
+  VirtualBox installed and configured. Pre-configured VMs must be set up on the runner. It is intended to run on 
+  pre-configured, dedicated infrastructure.
+
+inputs:
+  name:
+    description: Name of the VM to use. This must be an existing VirtualBox VM on the self-hosted runner.
+    required: true
+  snapshot:
+    description: Name of the snapshot to restore to after teardown.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Teardown VM
+      shell: sh
+      run: |
+        /usr/local/bin/VBoxManage controlvm ${{ inputs.name }} poweroff || true
+        /usr/local/bin/VBoxManage snapshot ${{ inputs.name }} restore ${{ inputs.snapshot }}

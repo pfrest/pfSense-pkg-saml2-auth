@@ -16,51 +16,101 @@
 
 /* LOGIN PAGE STYLING */
 #saml2_login_button {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 #saml2_login_button p {
-    text-align: center;
-    margin-top: 5px;
+  text-align: center;
+  margin-top: 5px;
+}
+
+/* ERROR PAGE STYLING */
+#saml2_error_notice {
+  font-size: 32px;
+  color: gray;
+  text-align: center;
+  margin-top: 200px;
+}
+
+#saml2_error_container {
+  font-family: helvetica, sans-serif;
+  display: block;
+  margin: 0 auto;
+  width: 480px;
+  height: 900px;
+  text-align: center;
+  animation: fade_in 0.5s ease-in-out forwards;
+}
+
+.saml2_circle_error_icon {
+  position: relative;
+  margin: 50px auto; /* Centered for demonstration */
+  width: 120px;
+  height: 120px;
+  background-color: #d9534f;
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.saml2_circle_error_icon::before,
+.saml2_circle_error_icon::after {
+  content: "";
+  position: absolute;
+  width: 70px;
+  height: 10px;
+  background-color: white;
+  border-radius: 5px;
+}
+
+@keyframes fade_in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* REDIRECT PAGE STYLING */
 #saml2_redirect_notice {
-    font-size: 40px;
-    font-family: helvetica, sans-serif;
-    color: gray;
-    text-align: center;
-    margin-top: 200px;
+  font-size: 40px;
+  font-family: helvetica, sans-serif;
+  color: gray;
+  text-align: center;
+  margin-top: 200px;
 }
 
 #saml2_redirect_loader_container {
-    display: block;
-    margin: 0 auto;
-    width: 80px;
-    height: 80px;
+  display: block;
+  margin: 0 auto;
+  width: 80px;
+  height: 80px;
 }
 
 .saml2_redirect_loader {
-    display: inline-block;
-    width: 80px;
-    height: 80px;
+  display: inline-block;
+  width: 80px;
+  height: 80px;
 }
 .saml2_redirect_loader:after {
-    content: " ";
-    display: block;
-    width: 64px;
-    height: 64px;
-    margin: 8px;
-    border-radius: 50%;
-    border: 6px solid gray;
-    border-color: gray transparent gray transparent;
-    animation: saml2_redirect_loader_animation 1.2s linear infinite;
+  content: " ";
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid gray;
+  border-color: gray transparent gray transparent;
+  animation: saml2_redirect_loader_animation 1.2s linear infinite;
 }
 @keyframes saml2_redirect_loader_animation {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

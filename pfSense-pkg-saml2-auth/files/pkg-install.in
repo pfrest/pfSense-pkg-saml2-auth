@@ -1,40 +1,65 @@
 #!/bin/sh
 if [ "${2}" != "POST-INSTALL" ]; then
-	exit 0
+ exit 0
 fi
 
+# --- Constants ---
+PFSENSE_VERSION=$(/bin/cat /etc/version)
+PATCH_DIR="/usr/local/share/pfSense-pkg-saml2-auth/patches/default"
+V1_BACKUP_FILE="/usr/local/share/pfSense-pkg-saml2-auth/backup.json"
+V2_BACKUP_FILE="/var/cache/pfSense-pkg-saml2-auth/backup.json"
+
+# --- Functions ---
+# Function to apply a patch and handle errors
+# Arguments:
+#   $1 - The target file to be patched
+#   $2 - The patch file to apply
+apply_patch() {
+    local target_file=$1
+    local patch_file=$2
+    /usr/bin/patch "${target_file}" < "${patch_file}" >> /tmp/pfSense-pkg-saml2-auth-install.log 2>&1 || {
+        /bin/echo "failed!"
+        exit 1
+    }
+}
+
+# --- Runtime ---
 # Make this package known to pfSense
+/usr/local/bin/php -f /etc/rc.packages %%PORTNAME%% DEINSTALL > /dev/null # First remove any existing installation
 /usr/local/bin/php -f /etc/rc.packages %%PORTNAME%% ${2}
 
-# Backup original files before overriding
-/bin/cp /etc/inc/auth.inc /etc/inc/auth.inc.original
-/bin/cp /etc/inc/authgui.inc /etc/inc/authgui.inc.original
-/bin/cp /etc/inc/priv.inc /etc/inc/priv.inc.original
-echo "Creating backups of files to override...done."
+# Ensure the cache directory exists
+/bin/mkdir -p /var/cache/pfSense-pkg-saml2-auth
 
-# Check the local systems version of pfSense before assigning file overrides
-PFSENSE_VERSION=$(/bin/cat /etc/version)
-echo "Checking pfSense version...done."
-
-# Use the corresponding pfSense version's file overrides if they exist. Otherwise print warning and use default.
-if [ -d "/etc/inc/saml2_auth/overrides/${PFSENSE_VERSION}" ]
+# When version specific patches are available, use those instead of the default patches
+if [ -d "/usr/local/share/pfSense-pkg-saml2-auth/patches/${PFSENSE_VERSION}" ]
 then
-    /bin/cp "/etc/inc/saml2_auth/overrides/${PFSENSE_VERSION}/auth.inc" "/etc/inc/auth.inc"
-    /bin/cp "/etc/inc/saml2_auth/overrides/${PFSENSE_VERSION}/authgui.inc" "/etc/inc/authgui.inc"
-    /bin/cp "/etc/inc/saml2_auth/overrides/${PFSENSE_VERSION}/priv.inc" "/etc/inc/priv.inc"
-    echo "Installing file overrides for ${PFSENSE_VERSION}...done."
-else
-    echo "WARNING: No overrides exist for ${PFSENSE_VERSION}, it may be unsupported. Using default overrides."
-    /bin/cp "/etc/inc/saml2_auth/overrides/default/auth.inc" "/etc/inc/auth.inc"
-    /bin/cp "/etc/inc/saml2_auth/overrides/default/authgui.inc" "/etc/inc/authgui.inc"
-    /bin/cp "/etc/inc/saml2_auth/overrides/default/priv.inc" "/etc/inc/priv.inc"
-    echo "Installing default file overrides...done."
+    PATCH_DIR="/usr/local/share/pfSense-pkg-saml2-auth/patches/${PFSENSE_VERSION}"
 fi
 
+# Apply the necessary patches to pfSense core files
+/bin/echo -n "Applying patches for ${PFSENSE_VERSION}... "
+apply_patch /etc/inc/auth.inc "${PATCH_DIR}/auth.inc.patch"
+apply_patch /etc/inc/authgui.inc "${PATCH_DIR}/authgui.inc.patch"
+apply_patch /etc/inc/priv.inc "${PATCH_DIR}/priv.inc.patch"
+/bin/echo "done."
+
 # Link the pfSense SAML2 CLI tool and make the manage script executable
-ln -s /usr/local/share/pfSense-pkg-saml2-auth/manage.php /usr/local/bin/pfsense-saml2
-chmod +x /usr/local/share/pfSense-pkg-saml2-auth/manage.php
-echo "Configuring pfsense-saml2 CLI tool...done."
+/bin/echo -n "Setting up command line tools... "
+/bin/ln -s /usr/local/pkg/Saml2/manage.php /usr/local/bin/pfsense-saml2
+/bin/chmod +x /usr/local/pkg/Saml2/manage.php
+echo "done."
+
+# When a v1 backup exists and no v2 backup exists, migrate the v1 backup to v2 location
+if [ -f "${V1_BACKUP_FILE}" ] && [ ! -f "${V2_BACKUP_FILE}" ]
+then
+    /bin/cp "${V1_BACKUP_FILE}" "${V2_BACKUP_FILE}"
+fi
 
 # Restore previous SAML2 configuration
-/usr/local/bin/php -f /usr/local/share/pfSense-pkg-saml2-auth/manage.php restore
+/usr/local/bin/php -f /usr/local/pkg/Saml2/manage.php restore
+
+# Setup cache and schedules
+/usr/local/bin/php -f /usr/local/pkg/Saml2/manage.php refreshcache
+/usr/local/bin/php -f /usr/local/pkg/Saml2/manage.php removeschedule # Remove any existing schedules first
+/usr/local/bin/php -f /usr/local/pkg/Saml2/manage.php setupschedule

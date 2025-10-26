@@ -1,0 +1,67 @@
+name: pfsense-pkg-saml2-auth
+version: "3.8"
+networks:
+  container_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.220.0/24
+
+services:
+  idp:
+    image: ghcr.io/pfrest/mock-saml2-idp:v0.0.1
+    networks:
+      - container_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/settings.php"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    environment:
+      SP_ENTITY_ID: "${SP_ENTITY_ID}"
+      SP_ACS_LOCATION: "${SP_ACS_LOCATION}"
+      IDP_USER_NAME: "${IDP_USER_NAME:-pfrest}"
+      IDP_USER_GROUPS: "${IDP_USER_GROUPS:-staff}"
+      IDP_USER_GROUPS_ATTRIBUTE: "${IDP_USER_GROUPS_ATTRIBUTE:-groups}"
+      IDP_AUTH_MODE: "${IDP_AUTH_MODE:-auto}"
+      IDP_ENTITY_ID: "${IDP_ENTITY_ID:-mock-saml2-idp}"
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+
+  tests:
+    image: pfsense-pkg-saml2-auth
+    build:
+      context: ..
+      dockerfile: tests/Dockerfile
+    networks:
+      - container_net
+    volumes:
+      - "./tests/:/app/tests/"
+    depends_on:
+      - idp
+    healthcheck:
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      test: [
+          "CMD-SHELL",
+          "curl -f ${PFSENSE_PKG_SAML2_AUTH_IDP_SCHEME}://${PFSENSE_PKG_SAML2_AUTH_IDP_HOST}:${PFSENSE_PKG_SAML2_AUTH_IDP_PORT}/api/settings.php && \
+          curl -k -f ${PFSENSE_PKG_SAML2_AUTH_PFSENSE_SCHEME}://${PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST}:${PFSENSE_PKG_SAML2_AUTH_PFSENSE_PORT}/index.php",
+        ]
+    environment:
+      PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST: "${PFSENSE_PKG_SAML2_AUTH_PFSENSE_HOST}"
+      PFSENSE_PKG_SAML2_AUTH_PFSENSE_USERNAME: "${PFSENSE_PKG_SAML2_AUTH_PFSENSE_USERNAME:-admin}"
+      PFSENSE_PKG_SAML2_AUTH_PFSENSE_PASSWORD: "${PFSENSE_PKG_SAML2_AUTH_PFSENSE_PASSWORD:-pfsense}"
+      PFSENSE_PKG_SAML2_AUTH_PFSENSE_PORT: "${PFSENSE_PKG_SAML2_AUTH_PFSENSE_PORT:-443}"
+      PFSENSE_PKG_SAML2_AUTH_PFSENSE_SCHEME: "${PFSENSE_PKG_SAML2_AUTH_PFSENSE_SCHEME:-https}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_HOST: "${PFSENSE_PKG_SAML2_AUTH_IDP_HOST}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_PORT: "${PFSENSE_PKG_SAML2_AUTH_IDP_PORT:-8080}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_SCHEME: "${PFSENSE_PKG_SAML2_AUTH_IDP_SCHEME:-http}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_METADATA_URL: "${PFSENSE_PKG_SAML2_AUTH_IDP_METADATA_URL:-/sso/saml2/idp/metadata.php}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_ENTITY_ID: "${PFSENSE_PKG_SAML2_AUTH_IDP_ENTITY_ID:-mock-saml2-idp}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_SIGN_ON_URL: "${PFSENSE_PKG_SAML2_AUTH_IDP_SIGN_ON_URL:-/sso/module.php/saml/idp/singleSignOnService}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_GROUPS_ATTRIBUTE: "${PFSENSE_PKG_SAML2_AUTH_IDP_GROUPS_ATTRIBUTE:-groups}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_EXPECTED_NAMEID: "${PFSENSE_PKG_SAML2_AUTH_IDP_EXPECTED_NAMEID:-pfrest}"
+      PFSENSE_PKG_SAML2_AUTH_IDP_EXPECTED_GROUP: "${PFSENSE_PKG_SAML2_AUTH_IDP_EXPECTED_GROUP:-staff}"

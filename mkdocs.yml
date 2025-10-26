@@ -1,0 +1,29 @@
+site_name: pfSense SAML2 Package Documentation
+repo_url: https://github.com/pfrest/pfSense-pkg-saml2-auth
+nav:
+  - General:
+      - Home: index.md
+      - Installation: INSTALLATION.md
+      - Configuration: CONFIGURATION.md
+      - Privilege Mapping:
+          - Overview: PRIVILEGE_MAPPING.md
+          - By Group: PRIVILEGE_MAPPING_BY_GROUP.md
+          - By User: PRIVILEGE_MAPPING_BY_USER.md
+      - IdP Instructions:
+          - Overview: IDP_INSTRUCTIONS.md
+          - Microsoft Entra: idp/MSENTRA.md
+          - Okta: idp/OKTA.md
+      - FAQs: FAQS.md
+  - Advanced:
+      - Contributing: CONTRIBUTING.md
+      - Security: SECURITY.md
+      - PHP Reference: https://docs.pfrest.org/pfSense-pkg-saml2-auth/php-docs/
+theme:
+  name: readthedocs
+  features:
+    - search
+    - navigation.tabs
+markdown_extensions:
+  - admonition
+  - codehilite:
+      linenums: true

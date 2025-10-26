@@ -1,0 +1,42 @@
+name: Setup VM
+description: |
+  Sets up a VM for testing pfREST projects. Note: This action is designed to be run on self-hosted runners with 
+  VirtualBox installed and configured. Pre-configured VMs must be set up on the runner. It is intended to run on 
+  pre-configured, dedicated infrastructure.
+
+inputs:
+  name:
+    description: Name of the VM to use. This must be an existing VirtualBox VM on the self-hosted runner.
+    required: true
+  snapshot:
+    description: Name of the snapshot to restore from.
+    required: true
+  domain:
+    description: Domain to append to the VM name to form its FQDN.
+    required: true
+  wait_time:
+    description: Time in seconds to wait after starting the VM to allow it to boot up. Default is 5 seconds.
+    required: false
+    default: "5"
+
+outputs:
+  fqdn:
+    description: The FQDN of the VM that was started.
+    value: ${{ steps.variables.outputs.fqdn }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup VM
+      shell: sh
+      run: |
+        /usr/local/bin/VBoxManage controlvm ${{ inputs.name }} poweroff || true
+        /usr/local/bin/VBoxManage snapshot ${{ inputs.name }} restore ${{ inputs.snapshot }}
+        /usr/local/bin/VBoxManage startvm ${{ inputs.name }} --type headless
+        sleep ${{ inputs.wait_time }}
+
+    - name: Export output variables
+      shell: sh
+      id: variables
+      run: |
+        echo "fqdn=${{ inputs.name }}.${{ inputs.domain }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE packagegui SYSTEM "../schema/packages.dtd">
+<?xml-stylesheet type="text/xsl" href="../xsl/package.xsl"?>
+<packagegui>
+    <copyright>
+        <![CDATA[
+/**
+ * SAML2_AUTH
+ *  - A SAML2 authentication extension for the pfSense UI
+ *
+ * Copyright 2025 Jared Hendrickson
+ */
+	]]>
+    </copyright>
+    <description>A SAML2 authentication extension for the pfSense UI</description>
+    <name>SAML2</name>
+    <title>System: SAML2</title>
+    <menu>
+        <name>SAML2</name>
+        <tooltiptext>A SAML2 authentication extension for the pfSense UI</tooltiptext>
+        <section>System</section>
+        <url>/system_saml2_settings.php</url>
+    </menu>
+    <tabs>
+    </tabs>
+</packagegui>

@@ -13,9 +13,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
-require_once("saml2_auth/SAML2Auth.inc");
+require_once 'Saml2/autoload.php';
+
+use Saml2\Core\Auth;
+use Saml2\Core\Config;
 
 # Start SSO
-$saml2_auth = new SAML2Auth();
-$pkg_conf = SAML2Auth::get_package_config()[1];
-$saml2_auth->sso($pkg_conf["sp_base_url"]."/saml2_auth/sso/redirect/");
+$auth = new Auth();
+$config = new Config();
+$auth->sso($config->sp_base_url . Auth::SSO_REDIRECT_URL);

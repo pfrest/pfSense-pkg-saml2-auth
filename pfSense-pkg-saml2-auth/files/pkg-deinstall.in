@@ -4,15 +4,47 @@ if [ "${2}" != "DEINSTALL" ]; then
 	exit 0
 fi
 
+# --- Constants ---
+PFSENSE_VERSION=$(/bin/cat /etc/version)
+PATCH_DIR="/usr/local/share/pfSense-pkg-saml2-auth/patches/default"
+
+# --- Functions ---
+# A function to revert a patch and handle errors
+# Arguments:
+#   $1 - The target file to be reverted
+#   $2 - The patch file to revert
+revert_patch() {
+    local target_file=$1
+    local patch_file=$2
+    /usr/bin/patch -R "${target_file}" < "${patch_file}" >> /tmp/pfSense-pkg-saml2-auth-install.log 2>&1 || {
+        /bin/echo "failed!"
+        exit 1
+    }
+}
+
+# --- Runtime ---
 # Unlink this package from pfSense
 /usr/local/bin/php -f /etc/rc.packages %%PORTNAME%% ${2}
 
-# Restore overriden files to their original state
-/bin/cp /etc/inc/auth.inc.original /etc/inc/auth.inc
-/bin/cp /etc/inc/authgui.inc.original /etc/inc/authgui.inc
-/bin/cp /etc/inc/priv.inc.original /etc/inc/priv.inc
-echo "Restoring overridden files to original state...done."
+# When version specific patches are available, use those instead of the default patches
+if [ -d "/usr/local/share/pfSense-pkg-saml2-auth/patches/${PFSENSE_VERSION}" ]
+then
+    PATCH_DIR="/usr/local/share/pfSense-pkg-saml2-auth/patches/${PFSENSE_VERSION}"
+fi
+
+# Remove the patches applied to pfSense core files
+/bin/echo -n "Removing patches for ${PFSENSE_VERSION}... "
+revert_patch /etc/inc/auth.inc "${PATCH_DIR}/auth.inc.patch"
+revert_patch /etc/inc/authgui.inc "${PATCH_DIR}/authgui.inc.patch"
+revert_patch /etc/inc/priv.inc "${PATCH_DIR}/priv.inc.patch"
+/bin/echo "done."
+
+# Remove schedules
+/usr/local/bin/php -f /usr/local/pkg/Saml2/manage.php removeschedule
 
 # Remove the pfsense-saml2 CLI tool
-rm /usr/local/bin/pfsense-saml2
-echo "Removing /usr/local/bin/pfsense-saml2...done"
+/bin/echo -n "Removing command line tools..."
+/bin/rm /usr/local/bin/pfsense-saml2
+/bin/echo "done."
+
+

@@ -1,2 +1,13 @@
 /.idea/
 *.DS_Store
+/vendor/
+.vagrant/
+/node_modules/
+/venv/
+*.pkg
+*.egg-info/
+build/
+site/
+**/__pycache__/
+.pytest_cache
+.phpdoc
