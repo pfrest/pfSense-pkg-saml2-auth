@@ -25,6 +25,7 @@ apply_patch() {
 
 # --- Runtime ---
 # Make this package known to pfSense
+/usr/local/bin/php -f /etc/rc.packages %%PORTNAME%% DEINSTALL > /dev/null # First remove any existing installation
 /usr/local/bin/php -f /etc/rc.packages %%PORTNAME%% ${2}
 
 # Ensure the cache directory exists
