@@ -1,0 +1,17 @@
+--- /etc/inc/priv.inc	2025-08-23 13:24:50
++++ /etc/inc/priv.inc	2025-08-20 16:24:48
+@@ -265,7 +265,14 @@
+ 			}
+ 		}
+ 
++        # Added by pfSense-pkg-saml2-auth - set SAML2 user's group assignments as specified by the SAML2 assertion
++        if ($_SESSION["authsource"] === "SAML2") {
++            require_once("Saml2/Core/Config.inc");
++            $saml2_conf = new \Saml2\Core\Config();
++            $allowed_groups = $_SESSION["saml2_user_data"][$saml2_conf->idp_groups_attribute];
+ 	}
++
++    }
+ 	if (!$allowed_groups) {
+ 		// search for a local user by name
+ 		$local_user = getUserEntry($username);

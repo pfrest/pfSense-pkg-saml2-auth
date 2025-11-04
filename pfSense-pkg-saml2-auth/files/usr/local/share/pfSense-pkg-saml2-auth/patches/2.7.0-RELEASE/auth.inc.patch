@@ -1,0 +1,70 @@
+--- /etc/inc/auth.inc	2025-08-23 13:16:30
++++ /etc/inc/auth.inc	2025-08-20 16:24:48
+@@ -381,6 +381,13 @@
+ 		}
+ 	}
+ 
++    # Added by pfSense-pkg-saml2-auth - set SAML2 user's group assignments as specified by the SAML2 assertion
++    if ($_SESSION["authsource"] === "SAML2") {
++        require_once("Saml2/autoload.php");
++        $saml2_conf = new \Saml2\Core\Config();
++        $allowed_groups = $_SESSION["saml2_user_data"][$saml2_conf->idp_groups_attribute];
++    }
++
+ 	if (empty($allowed_groups)) {
+ 		$allowed_groups = local_user_get_groups($user, true);
+ 	}
+@@ -2181,16 +2188,24 @@
+ 
+ 	/* Validate incoming login request */
+ 	$attributes = array('nas_identifier' => 'webConfigurator-' . gethostname());
+-	if (isset($_POST['login']) && !empty($_POST['usernamefld'])) {
++    if ($_SESSION['saml2_auth'] or isset($_POST['login']) && !empty($_POST['usernamefld'])) {
+ 		$authcfg = auth_get_authserver(config_get_path('system/webgui/authmode'));
+ 		$remoteauth = authenticate_user($_POST['usernamefld'], $_POST['passwordfld'], $authcfg, $attributes);
++
++        # Added by pfSense-pkg-saml2-auth - set SAML2 as remote authentication
++        $remoteauth = ($_SESSION['saml2_auth']) ? true : $remoteauth;
++
+ 		if ($remoteauth || authenticate_user($_POST['usernamefld'], $_POST['passwordfld'])) {
+ 			// Generate a new id to avoid session fixation
+ 			session_regenerate_id();
+ 			$_SESSION['Logged_In'] = "True";
+ 			$_SESSION['remoteauth'] = $remoteauth;
+ 			if ($remoteauth) {
+-				if (empty($authcfg['type']) || ($authcfg['type'] == "Local Auth")) {
++                # Added by pfSense-pkg-saml2-auth - store SAML2 authentication source
++                if ($_SESSION['saml2_auth']) {
++                    $_SESSION['authsource'] = "SAML2";
++                }
++                elseif (empty($authcfg['type']) || ($authcfg['type'] == "Local Auth")) {
+ 					$_SESSION['authsource'] = "Local Database";
+ 				} else {
+ 					$_SESSION['authsource'] = strtoupper($authcfg['type']) . "/{$authcfg['name']}";
+@@ -2203,8 +2218,26 @@
+ 			$_SESSION['last_access'] = time();
+ 			$_SESSION['protocol'] = config_get_path('system/webgui/protocol');
++
++            # Added by pfSense-pkg-saml2-auth - Save username found in SAML assertion of using SAML authentication
++            if ($_SESSION['saml2_auth']) {
++                require_once("Saml2/autoload.php");
++                $saml2_conf = new \Saml2\Core\Config();
++                $_SESSION["Username"] = $_SESSION['saml2_name_id'];
++                # Strip email usernames if configured
++                if (isset($saml2_conf->strip_username)) {
++                    $_SESSION["Username"] = explode("@", $_SESSION["Username"])[0];
++                }
++            }
++
++            # Added by pfSense-pkg-saml2-auth - Unset the saml2 authentication success variable to avoid login loop
++            unset($_SESSION['saml2_auth']);
++
+ 			phpsession_end(true);
+-			log_auth(sprintf(gettext("Successful login for user '%1\$s' from: %2\$s"), $_POST['usernamefld'], get_user_remote_address() . get_user_remote_authsource()));
++
++            # Added by pfSense-pkg-saml2-auth - Log the $_SESSION username rather than the POST data username
++            log_auth(sprintf(gettext("Successful login for user '%1\$s' from: %2\$s"), $_SESSION['Username'], get_user_remote_address() . get_user_remote_authsource()));
++
+ 			if (isset($_POST['postafterlogin'])) {
+ 				return true;
+ 			} else {
