@@ -24,7 +24,7 @@ jobs:
             PFSENSE_VERSION: 2.8
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup FreeBSD build VM
         uses: ./.github/actions/setup_vm
@@ -61,7 +61,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Setup Pages
         uses: actions/configure-pages@v5.0.0
