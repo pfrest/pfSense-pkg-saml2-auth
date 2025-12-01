@@ -5,4 +5,4 @@ mkdocs~=1.6.1
 playwright==1.56.0
 pytest-playwright==0.7.1
 pfsense-vshell==2.2.2
-black==25.9.0
+black==25.11.0
