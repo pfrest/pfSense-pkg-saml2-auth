@@ -1,5 +1,5 @@
 {
   "require": {
-    "onelogin/php-saml": "4.3.0"
+    "onelogin/php-saml": "4.3.1"
   }
 }
