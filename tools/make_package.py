@@ -23,7 +23,6 @@ import subprocess
 import sys
 import jinja2
 
-
 # Constants
 REPO_OWNER = "pfrest"
 REPO_NAME = "pfSense-pkg-saml2-auth"
