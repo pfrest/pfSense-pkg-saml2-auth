@@ -3,7 +3,7 @@ Jinja2~=3.1.6
 pylint~=3.3.9
 pytest==8.4.2
 mkdocs~=1.6.1
-playwright==1.57.0
+playwright==1.58.0
 pytest-playwright==0.7.1
 pfsense-vshell==2.2.3
 black==26.1.0
