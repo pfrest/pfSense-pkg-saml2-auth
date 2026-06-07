@@ -10,20 +10,32 @@ updates:
     target-branch: "master"
     schedule:
       interval: "monthly"
+    groups:
+      composer:
+        patterns: ["*"]
 
   - package-ecosystem: "pip"
     directory: "/"
     target-branch: "master"
     schedule:
       interval: "monthly"
+    groups:
+      pip:
+        patterns: ["*"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      github-actions:
+        patterns: ["*"]
 
   - package-ecosystem: "npm"
     directory: "/"
     target-branch: "master"
     schedule:
       interval: "monthly"
+    groups:
+      npm:
+        patterns: ["*"]
