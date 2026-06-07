@@ -4,6 +4,6 @@ pylint~=3.3.9
 pytest==9.0.3
 mkdocs~=1.6.1
 playwright==1.60.0
-pytest-playwright==0.7.1
+pytest-playwright==0.8.0
 pfsense-vshell==2.2.4
 black~=25.11.0
