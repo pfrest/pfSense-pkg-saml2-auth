@@ -1,9 +1,9 @@
 setuptools==82.0.1
 Jinja2~=3.1.6
-pylint~=3.3.9
-pytest==9.0.3
+pylint~=4.0.6
+pytest==9.1.1
 mkdocs~=1.6.1
-playwright==1.60.0
+playwright==1.61.0
 pytest-playwright==0.8.0
 pfsense-vshell==2.2.4
-black~=25.11.0
+black~=26.5.1
