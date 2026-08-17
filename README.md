@@ -4,11 +4,11 @@
 [![Build](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/build.yml/badge.svg)](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/build.yml)
 [![Release](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/release.yml/badge.svg)](https://github.com/pfrest/pfSense-pkg-saml2-auth/actions/workflows/release.yml)
 
-`pfSense-pkg-saml2-auth` package implements SAML2 authentication support to the pfSense webConfigurator. This package 
-integrates with pfSense's existing authentication system, allowing administrators to leverage single sign-on (SSO) and 
-take advantage of the robust multi-factor authentication (MFA) options from their preferred Identity Provider (IdP). 
-This solution is ideal for meeting modern security compliance requirements, such as PCI DSS, that mandate MFA for 
-administrative logins. Key benefits include centralized user management, simplified administrator onboarding/offboarding, 
+`pfSense-pkg-saml2-auth` package implements SAML2 authentication support to the pfSense webConfigurator. This package
+integrates with pfSense's existing authentication system, allowing administrators to leverage single sign-on (SSO) and
+take advantage of the robust multi-factor authentication (MFA) options from their preferred Identity Provider (IdP).
+This solution is ideal for meeting modern security compliance requirements, such as PCI DSS, that mandate MFA for
+administrative logins. Key benefits include centralized user management, simplified administrator onboarding/offboarding,
 and a significantly enhanced security posture for your firewall administration.
 
 ## Key Features
@@ -26,8 +26,8 @@ and a significantly enhanced security posture for your firewall administration.
 
 ## Quickstart
 
-It's recommended to use the links in the [Getting Started](#getting-started) section for full installation and 
-configuration instructions. For quick reference, the following commands can be used to install or uninstall the package 
+It's recommended to use the links in the [Getting Started](#getting-started) section for full installation and
+configuration instructions. For quick reference, the following commands can be used to install or uninstall the package
 via the pfSense command line.
 
 ```
@@ -41,6 +41,7 @@ pkg delete pfSense-pkg-saml2-auth
 ```
 
 > [!NOTE]
+>
 > - When pfSense is updated, this package will be automatically uninstalled. After updating pfSense, the package will need to be reinstalled to match the updated version.
 > - You may need to adjust the package URL above to match your pfSense version (e.g., `pfSense-2.7-pkg-saml2-auth.pkg` for pfSense 2.7.x). Check the [Releases](https://github.com/pfrest/pfSense-pkg-saml2-auth/releases) page for the correct package for your version.
 

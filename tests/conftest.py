@@ -90,6 +90,23 @@ def saml2_config_no_groups() -> Saml2Config:
 
 
 @pytest.fixture
+def saml2_config_disabled() -> Saml2Config:
+    """
+    Pytest fixture to provide a valid SAML2 configuration with the package disabled.
+
+    Returns:
+        Saml2Config: Configuration object with SAML2 disabled
+    """
+    conf = Saml2Config(enable=False)
+    conf.save()
+    yield conf
+
+    # After test, restore to default valid config
+    conf = Saml2Config()
+    conf.save()
+
+
+@pytest.fixture
 def webkit_browser() -> Browser:
     """
     Pytest fixture to provide a WebKit browser instance for tests
