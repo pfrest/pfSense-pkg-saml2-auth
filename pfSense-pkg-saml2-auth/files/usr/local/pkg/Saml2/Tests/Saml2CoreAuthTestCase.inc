@@ -70,6 +70,7 @@ class Saml2CoreAuthTestCase extends TestCase {
      */
     public function test_check_enabled_with_enabled_package(): void {
         $auth = new Auth(no_auth: true);
+        $auth->config->enable = true;
 
         $this->assert_does_not_throw(function () use ($auth) {
             $this->invoke_private_method($auth, '__check_enabled');

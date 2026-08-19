@@ -27,6 +27,22 @@ def assert_disabled_sso_attempt_shows_error(params: Params, browser: Browser) ->
     assert session_resp.status == 401
 
 
+def assert_enabled_sso_attempt_starts_auth(params: Params, browser: Browser) -> None:
+    """Assert that opening the SSO endpoint while enabled starts and completes SSO auth."""
+    page = browser.new_page()
+
+    # Starting at the SSO endpoint should proceed through auth instead of failing on the package error page
+    page.goto(f"{params.pfsense_url}/saml2_auth/sso/")
+    page.get_by_role("link", name="Dashboard").click()
+
+    assert "/saml2_auth/sso/error/" not in page.url
+
+    # Ensure a successful SSO session exists after the flow completes
+    session_resp = page.goto(f"{params.pfsense_url}/saml2_auth/sso/session/")
+    session = session_resp.json()
+    assert "error" not in session
+
+
 @pytest.mark.usefixtures("saml2_config_disabled")
 def test_sso_login_disabled_chromium(params: Params, chromium_browser: Browser) -> None:
     """Ensure Chromium sees the SSO failure page when the package is disabled."""
@@ -37,3 +53,17 @@ def test_sso_login_disabled_chromium(params: Params, chromium_browser: Browser) 
 def test_sso_login_disabled_firefox(params: Params, firefox_browser: Browser) -> None:
     """Ensure Firefox sees the SSO failure page when the package is disabled."""
     assert_disabled_sso_attempt_shows_error(params, firefox_browser)
+
+
+@pytest.mark.usefixtures("pfsense_user_group")
+@pytest.mark.usefixtures("saml2_config_default")
+def test_sso_login_enabled_chromium(params: Params, chromium_browser: Browser) -> None:
+    """Ensure Chromium can start SSO from the SSO endpoint when the package is enabled."""
+    assert_enabled_sso_attempt_starts_auth(params, chromium_browser)
+
+
+@pytest.mark.usefixtures("pfsense_user_group")
+@pytest.mark.usefixtures("saml2_config_default")
+def test_sso_login_enabled_firefox(params: Params, firefox_browser: Browser) -> None:
+    """Ensure Firefox can start SSO from the SSO endpoint when the package is enabled."""
+    assert_enabled_sso_attempt_starts_auth(params, firefox_browser)
