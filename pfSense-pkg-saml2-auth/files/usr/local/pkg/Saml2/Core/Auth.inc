@@ -53,7 +53,7 @@ class Auth {
             try {
                 $this->__check_enabled();
                 $this->auth = new \OneLogin\Saml2\Auth($this::get_saml_settings());
-            } catch (Exception $error) {
+            } catch (\Throwable $error) {
                 $this->log(level: LOG_ERR, message: $error->getMessage());
                 header('Location: ' . self::SSO_ERROR_URL);
                 exit();
@@ -73,7 +73,7 @@ class Auth {
         # Try to start SAML2 authentication, handle errors accordingly
         try {
             $this->auth->login($redirect);
-        } catch (Exception $error) {
+        } catch (\Error $error) {
             $this->log(level: LOG_ERR, message: $error->getMessage());
             header('Location: ' . self::SSO_ERROR_URL);
             exit();
