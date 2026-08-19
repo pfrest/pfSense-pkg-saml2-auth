@@ -22,6 +22,7 @@ use OneLogin\Saml2\Error;
 use OneLogin\Saml2\IdPMetadataParser;
 use OneLogin\Saml2\Settings;
 use OneLogin\Saml2\Utils;
+use Saml2\Errors\SystemError;
 
 /**
  * Defines the main SAML2 authentication class. This class is responsible for handling all SAML2 related processes,
@@ -50,8 +51,9 @@ class Auth {
         if (!$no_auth) {
             # Try to start SAML2 authentication, handle errors accordingly
             try {
+                $this->__check_enabled();
                 $this->auth = new \OneLogin\Saml2\Auth($this::get_saml_settings());
-            } catch (Exception $error) {
+            } catch (\Throwable $error) {
                 $this->log(level: LOG_ERR, message: $error->getMessage());
                 header('Location: ' . self::SSO_ERROR_URL);
                 exit();
@@ -71,7 +73,7 @@ class Auth {
         # Try to start SAML2 authentication, handle errors accordingly
         try {
             $this->auth->login($redirect);
-        } catch (Exception $error) {
+        } catch (\Error $error) {
             $this->log(level: LOG_ERR, message: $error->getMessage());
             header('Location: ' . self::SSO_ERROR_URL);
             exit();
@@ -175,6 +177,15 @@ class Auth {
         if (!$_SESSION['saml2_started']) {
             header('Location: ' . self::SSO_URL);
             exit();
+        }
+    }
+
+    /**
+     * Checks if the SAML2 package is enabled. If not, throws an exception.
+     */
+    private function __check_enabled(): void {
+        if (!$this->config->enable) {
+            throw new SystemError('SAML2 authentication is not enabled.');
         }
     }
 

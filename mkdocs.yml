@@ -13,6 +13,7 @@ nav:
           - Overview: IDP_INSTRUCTIONS.md
           - Microsoft Entra: idp/MSENTRA.md
           - Okta: idp/OKTA.md
+          - Shibboleth: idp/SHIBBOLETH.md
       - FAQs: FAQS.md
   - Advanced:
       - Contributing: CONTRIBUTING.md

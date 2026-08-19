@@ -8,3 +8,4 @@ the repository by opening a pull request!
 
 - [Microsoft Entra ID](idp/MSENTRA.md)
 - [Okta](idp/OKTA.md)
+- [Shibboleth](idp/SHIBBOLETH.md)
