@@ -97,8 +97,18 @@ class Saml2CoreAuthTestCase extends TestCase {
      * inspect config without attempting authentication.
      */
     public function test_construct_with_no_auth_when_disabled(): void {
-        $conf = new Config();
-        $conf->enable = false;
+        $conf = new Config([
+            'enable' => '',
+            'strip_username' => '',
+            'debug_mode' => 'yes',
+            'idp_metadata_url' => 'https://idp.example.com/metadata',
+            'idp_entity_id' => 'https://idp.example.com/entity',
+            'idp_sign_on_url' => 'https://idp.example.com/sso',
+            'idp_x509_cert' => base64_encode("-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"),
+            'idp_groups_attribute' => 'groups',
+            'sp_base_url' => 'https://sp.example.com',
+            'custom_conf' => base64_encode('{"test_key": "test_value"}'),
+        ]);
         $conf->save();
 
         $auth = null;
