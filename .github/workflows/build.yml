@@ -75,7 +75,7 @@ jobs:
             PFSENSE_RESTAPI_PKG_URL: https://github.com/jaredhendrickson13/pfsense-api/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg
             FREEBSD_ID: freebsd15
           - PFSENSE_VERSION: pfSense-2.9.0-RELEASE
-            PFSENSE_RESTAPI_PKG_URL: https://github.com/jaredhendrickson13/pfsense-api/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg
+            PFSENSE_RESTAPI_PKG_URL: https://github.com/jaredhendrickson13/pfsense-api/releases/latest/download/pfSense-2.9.0-pkg-RESTAPI.pkg
             FREEBSD_ID: freebsd16
 
     steps:
