@@ -29,6 +29,8 @@ use Saml2\Errors\SystemError;
  * including initiating SSO, processing ACS responses, and generating SP metadata.
  */
 class Auth {
+    const ASSERTION_CACHE_FILE = '/var/cache/pfSense-pkg-saml2-auth/assertions.json';
+    const ASSERTION_CACHE_TTL = 600;
     const SP_METADATA_URL = '/saml2_auth/sso/metadata/';
     const SP_ACS_URL = '/saml2_auth/sso/acs/';
     const SSO_URL = '/saml2_auth/sso/';
@@ -67,13 +69,26 @@ class Auth {
      * @return void
      */
     public function sso(string $redirect): void {
-        # Mark the SAML2 login as in process and start login
-        $_SESSION['saml2_started'] = true;
+        # Invalidate any previous incomplete login before generating a replacement request
+        unset($_SESSION['saml2_started']);
+        unset($_SESSION['AuthNRequestID']);
+        unset($_SESSION['saml2_relay_state']);
 
         # Try to start SAML2 authentication, handle errors accordingly
         try {
-            $this->auth->login($redirect);
-        } catch (\Error $error) {
+            # php-saml exits when stay is false, so build the redirect first and persist the request state ourselves
+            $url = $this->auth->login($redirect, stay: true);
+            $request_id = $this->auth->getLastRequestID();
+            if (!$request_id or !$url) {
+                throw new SystemError('Unable to initiate SAML2 authentication.');
+            }
+
+            $_SESSION['saml2_started'] = true;
+            $_SESSION['AuthNRequestID'] = $request_id;
+            $_SESSION['saml2_relay_state'] = $redirect;
+            header('Location: ' . $url);
+            exit();
+        } catch (\Throwable $error) {
             $this->log(level: LOG_ERR, message: $error->getMessage());
             header('Location: ' . self::SSO_ERROR_URL);
             exit();
@@ -87,12 +102,23 @@ class Auth {
     public function acs(): void {
         # Check the state of SAML2 authentication. Only proceeds if in expected state.
         $this->__check_saml2_state();
+        $request_id = $_SESSION['AuthNRequestID'];
+        $relay_state = $_SESSION['saml2_relay_state'] ?? null;
         unset($_SESSION['saml2_started']);
+        unset($_SESSION['AuthNRequestID']);
+        unset($_SESSION['saml2_relay_state']);
 
-        # Attempt to process the SAML response
+        # Attempt to process the SAML response. The request ID is consumed before validation to prevent retries.
         try {
-            $this->auth->processResponse($_SESSION['AuthNRequestID']);
-        } catch (Exception $error) {
+            $this->auth->processResponse($request_id);
+            if ($this->auth->isAuthenticated()) {
+                $assertion_id = $this->auth->getLastAssertionId();
+                $assertion_expiry = $this->auth->getLastAssertionNotOnOrAfter();
+                if (!$assertion_id or !$this->__consume_assertion_id($assertion_id, $assertion_expiry)) {
+                    throw new SystemError('The SAML2 assertion has already been used or has no ID.');
+                }
+            }
+        } catch (\Throwable $error) {
             $this->log(level: LOG_ERR, message: $error->getMessage());
             header('Location: ' . self::SSO_ERROR_URL);
             exit();
@@ -104,7 +130,6 @@ class Auth {
             $_SESSION['saml2_auth'] = true;
             $_SESSION['saml2_user_data'] = $this->auth->getAttributes();
             $_SESSION['saml2_name_id'] = $this->auth->getNameId();
-            unset($_SESSION['AuthNRequestID']);
 
             # Log attributes to debug log
             $this->log(
@@ -114,8 +139,8 @@ class Auth {
             );
 
             # Support RelayState settings
-            if (isset($_POST['RelayState']) && Utils::getSelfURL() != $_POST['RelayState']) {
-                $this->auth->redirectTo($_POST['RelayState']);
+            if ($relay_state and Utils::getSelfURL() != $relay_state) {
+                $this->auth->redirectTo($relay_state);
             }
         }
 
@@ -168,15 +193,54 @@ class Auth {
      */
     private function __check_saml2_state(): void {
         # Redirect to home page if user is already logged in
-        if ($_SESSION['Logged_In']) {
+        if (!empty($_SESSION['Logged_In'])) {
             header('Location: ' . self::SSO_REDIRECT_URL);
             exit();
         }
 
-        # Redirect to SSO login if the login process has not been started
-        if (!$_SESSION['saml2_started']) {
+        # Redirect to SSO login if the login process has not been started or has no request to validate against
+        if (empty($_SESSION['saml2_started']) or empty($_SESSION['AuthNRequestID'])) {
             header('Location: ' . self::SSO_URL);
             exit();
+        }
+    }
+
+    /**
+     * Atomically records a validated assertion ID and rejects IDs that were previously recorded.
+     * @param string $assertion_id The unique ID of the validated SAML assertion.
+     * @param int|null $assertion_expiry The assertion's NotOnOrAfter timestamp, when supplied by the IdP.
+     * @return bool True when the assertion was unused and is now recorded, false when it was already consumed.
+     */
+    private function __consume_assertion_id(string $assertion_id, int|null $assertion_expiry): bool {
+        $cache = fopen(self::ASSERTION_CACHE_FILE, 'c+');
+        if ($cache === false or !flock($cache, LOCK_EX)) {
+            if (is_resource($cache)) {
+                fclose($cache);
+            }
+            throw new SystemError('Unable to lock the SAML2 assertion replay cache.');
+        }
+
+        try {
+            rewind($cache);
+            $cache_data = json_decode(stream_get_contents($cache), associative: true);
+            $cache_data = is_array($cache_data) ? $cache_data : [];
+            $now = time();
+            $cache_data = array_filter($cache_data, fn($expiry) => is_int($expiry) and $expiry > $now);
+            $cache_key = hash('sha256', $assertion_id);
+
+            if (isset($cache_data[$cache_key])) {
+                return false;
+            }
+
+            $cache_data[$cache_key] = max($now + self::ASSERTION_CACHE_TTL, $assertion_expiry ?? 0);
+            rewind($cache);
+            if (!ftruncate($cache, 0) or fwrite($cache, json_encode($cache_data)) === false or !fflush($cache)) {
+                throw new SystemError('Unable to update the SAML2 assertion replay cache.');
+            }
+            return true;
+        } finally {
+            flock($cache, LOCK_UN);
+            fclose($cache);
         }
     }
 
@@ -255,6 +319,10 @@ class Auth {
                 $php_saml_config = array_replace_recursive($php_saml_config, $custom_conf);
             }
         }
+
+        # Request correlation is mandatory and cannot be disabled by IdP metadata or custom configuration
+        $php_saml_config['strict'] = true;
+        $php_saml_config['security']['rejectUnsolicitedResponsesWithInResponseTo'] = true;
 
         # Log the final configuration at debug level
         $this->log(level: LOG_DEBUG, message: 'Using SAML2 settings: ' . json_encode($php_saml_config));

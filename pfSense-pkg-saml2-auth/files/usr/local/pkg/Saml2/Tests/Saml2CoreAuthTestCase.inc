@@ -31,9 +31,9 @@ class Saml2CoreAuthTestCase extends TestCase {
      * @param string $method_name
      * @return mixed
      */
-    private function invoke_private_method(Auth $auth, string $method_name): mixed {
+    private function invoke_private_method(Auth $auth, string $method_name, mixed ...$args): mixed {
         $method = new ReflectionMethod(Auth::class, $method_name);
-        return $method->invoke($auth);
+        return $method->invokeArgs($auth, $args);
     }
 
     /**
@@ -118,5 +118,37 @@ class Saml2CoreAuthTestCase extends TestCase {
 
         $this->assert_is_false($auth->config->enable);
         $this->assert_is_false(isset($auth->auth));
+    }
+
+    /**
+     * Checks that custom configuration cannot disable strict request correlation.
+     */
+    public function test_saml_settings_enforce_request_correlation(): void {
+        $auth = new Auth(no_auth: true);
+        $auth->config->idp_metadata_url = '';
+        $auth->config->custom_conf = json_encode([
+            'strict' => false,
+            'security' => ['rejectUnsolicitedResponsesWithInResponseTo' => false],
+        ]);
+
+        $settings = $auth->get_saml_settings();
+
+        $this->assert_is_true($settings['strict']);
+        $this->assert_is_true($settings['security']['rejectUnsolicitedResponsesWithInResponseTo']);
+    }
+
+    /**
+     * Checks that a SAML assertion ID can only be consumed once.
+     */
+    public function test_consume_assertion_id_rejects_replay(): void {
+        $auth = new Auth(no_auth: true);
+        $assertion_id = 'test-' . bin2hex(random_bytes(16));
+
+        $this->assert_is_true(
+            $this->invoke_private_method($auth, '__consume_assertion_id', $assertion_id, time() + 60),
+        );
+        $this->assert_is_false(
+            $this->invoke_private_method($auth, '__consume_assertion_id', $assertion_id, time() + 60),
+        );
     }
 }
