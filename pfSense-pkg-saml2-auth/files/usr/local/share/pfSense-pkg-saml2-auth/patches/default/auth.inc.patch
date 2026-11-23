@@ -52,7 +52,7 @@
 +                $saml2_conf = new \Saml2\Core\Config();
 +                $_SESSION["Username"] = $_SESSION['saml2_name_id'];
 +                # Strip email usernames if configured
-+                if (isset($saml2_conf->strip_username)) {
++                if ($saml2_conf->strip_username) {
 +                    $_SESSION["Username"] = explode("@", $_SESSION["Username"])[0];
 +                }
 +            }
